@@ -31,33 +31,39 @@ export default class hexGridClass {
       let numInnerTiles = 2;
 
 
+      //Random map generation
       for (let i = 0; i < numInnerTiles; i++) {
-         let selected = this.hexMap.randomFilterOut('black');
-         this.hexMap.set(selected.Q, selected.R, {
-            group: 'black'
-         });
 
-         let neighbors = this.hexMap.neighborKeys(selected.Q, selected.R);
-         let filteredNeighbors = this.hexMap.neighborKeysFiltered(selected.Q, selected.R, 'black');
+         //Select a random inner tile
+         let selected = this.hexMap.randomInnerTile();
 
-         console.log(neighbors, filteredNeighbors);
+         let toRemove = [selected];
 
-         for (let i = 0; i < neighbors.length; i++) {
-            this.hexMap.set(neighbors[i].Q, neighbors[i].R, {
-               group: 'blue'
-            })
-         }
+         let neighbors = this.hexMap.neighborKeysInner(selected.Q, selected.R);
 
-         let recurssionBoundry = 1;
+         let recurssionBoundry = 0.9;
          let recurssionRoll = Math.max(Math.random(), 0.01);
 
-         // while (recurssionBoundry > recurssionRoll){
-         //    //select random neighbor
+         while (recurssionBoundry > recurssionRoll){
+            //select random neighbor
 
-         // }
+            if(neighbors.length == 0) break;
 
+            selected = neighbors[Math.floor(Math.random() * neighbors.length)];
 
+            toRemove.push(selected);
+
+            neighbors = this.hexMap.neighborKeysInner(selected.Q, selected.R);
+            
+            recurssionBoundry *= 0.9;
+         }
+
+         for(let i=0; i<toRemove.length; i++){
+            this.hexMap.delete(toRemove[i].Q, toRemove[i].R);
+         }
       }
+
+      this.hexMap.deleteIslands();
 
       // keys = [...this.hexMap.keys()];
       // selectedList = [];

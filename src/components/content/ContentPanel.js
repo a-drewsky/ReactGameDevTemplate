@@ -19,7 +19,7 @@ const ContentPanel = () => {
       ctx.current = context;
 
 
-      let HexGrid = new HexGridClass(ctx.current, s(5), canvas.current.width, canvas.current.height, 3);
+      let HexGrid = new HexGridClass(ctx.current, s(4), canvas.current.width, canvas.current.height, 3);
       HexGrid.populateHexMap();
       HexGrid.drawHexGrid();
       
