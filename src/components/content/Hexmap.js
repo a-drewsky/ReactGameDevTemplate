@@ -58,6 +58,46 @@ export default class HexmapClass {
       return [...this.hexMap.keys()]
    }
 
+   //return all key strings
+   keyStringsNullGroup = () => {
+      let keyStrings = this.keyStrings();
+
+      let filteredKeyStrings = [];
+
+      for (let i = 0; i < keyStrings.length; i++) {
+         let key = this.split(keyStrings[i]);
+         if (this.get(key.Q, key.R).group == null) filteredKeyStrings.push(keyStrings[i]);
+      }
+
+      return filteredKeyStrings;
+
+   }
+
+   getGroupEdges = (q, r) => {
+      let group = this.get(q, r).group;
+      let edges = [];
+
+      if (!this.has(q, r - 1) || this.get(q, r - 1).group != group) edges.push('TL');
+      if (!this.has(q + 1, r - 1) || this.get(q + 1, r - 1).group != group) edges.push('TR');
+      if (!this.has(q + 1, r) || this.get(q + 1, r).group != group) edges.push('R');
+      if (!this.has(q, r + 1) || this.get(q, r + 1).group != group) edges.push('BR');
+      if (!this.has(q - 1, r + 1) || this.get(q - 1, r + 1).group != group) edges.push('BL');
+      if (!this.has(q - 1, r) || this.get(q - 1, r).group != group) edges.push('L');
+
+      return edges;
+   }
+
+   getGroupTiles = (group) => {
+      let keys = this.keys();
+      let filteredKeys = [];
+
+      for(let i=0; i<keys.length; i++){
+         if(this.get(keys[i].Q, keys[i].R).group==group) filteredKeys.push(keys[i]);
+      }
+
+      return filteredKeys;
+   }
+
    //returns keys of all neighbors adjacent to (q, r)
    neighborKeys = (q, r) => {
       let neighbors = [];
@@ -122,16 +162,31 @@ export default class HexmapClass {
 
    }
 
+   neighborKeysNull = (q, r) => {
+
+      let neighbors = this.neighborKeys(q, r);
+
+      let filteredNeighbors = [];
+
+      for (let i = 0; i < neighbors.length; i++) {
+         if (this.get(neighbors[i].Q, neighbors[i].R).group != null) continue;
+         filteredNeighbors.push(neighbors[i]);
+      }
+
+      return filteredNeighbors;
+
+   }
+
    //returns a list of groups neighboring (q, r)
    neighborList = (q, r) => {
       let neighbors = new Set();
 
-      if (this.has(q, r - 1)) neighbors.add(this.get(q, r - 1).group);
-      if (this.has(q + 1, r - 1)) neighbors.add(this.get(q + 1, r - 1).group);
-      if (this.has(q + 1, r)) neighbors.add(this.get(q + 1, r).group);
-      if (this.has(q, r + 1)) neighbors.add(this.get(q, r + 1).group);
-      if (this.has(q - 1, r + 1)) neighbors.add(this.get(q - 1, r + 1).group);
-      if (this.has(q - 1, r)) neighbors.add(this.get(q - 1, r).group);
+      if (this.has(q, r - 1) && this.get(q, r - 1).group != null) neighbors.add(this.get(q, r - 1).group);
+      if (this.has(q + 1, r - 1) && this.get(q + 1, r - 1).group != null) neighbors.add(this.get(q + 1, r - 1).group);
+      if (this.has(q + 1, r) && this.get(q + 1, r).group != null) neighbors.add(this.get(q + 1, r).group);
+      if (this.has(q, r + 1) && this.get(q, r + 1).group != null) neighbors.add(this.get(q, r + 1).group);
+      if (this.has(q - 1, r + 1) && this.get(q - 1, r + 1).group != null) neighbors.add(this.get(q - 1, r + 1).group);
+      if (this.has(q - 1, r) && this.get(q - 1, r).group != null) neighbors.add(this.get(q - 1, r).group);
 
       return Array.from(neighbors);
    }
@@ -151,15 +206,57 @@ export default class HexmapClass {
    }
 
    //returns a random key, filtering out all tiles with selected group and its neighbors except for the neighbors
-   randomFilterOut = (group) => {
+   randomNullGroup = () => {
 
       let keys = this.keys();
       let arr = [];
 
       for (let i = 0; i < keys.length; i++) {
          let key = keys[i];
-         if (this.get(key.Q, key.R).group == group) continue;
-         if (this.neighborList(key.Q, key.R).includes(group)) continue;
+         if (this.get(key.Q, key.R).group != null) continue;
+         arr.push(key);
+      }
+
+      return arr[Math.floor(Math.random() * arr.length)]
+
+   }
+
+   randomGroupNeighbor = (group) => {
+      //get all tiles in group
+      let groupTiles = this.getGroupTiles(group);
+
+      //get all null neighbors of tiles
+      let groupNeighbors = new Set();
+
+      for(let i=0; i<groupTiles.length; i++){
+         let neighbors = this.neighborKeysNull(groupTiles[i].Q, groupTiles[i].R);
+
+
+         for(let j=0; j<neighbors.length; j++){
+            groupNeighbors.add(this.join(neighbors[j].Q, neighbors[j].R));
+         }
+      }
+
+      console.log(groupNeighbors.size)
+
+      let arr = Array.from(groupNeighbors).map(key => this.split(key));
+
+      console.log(arr)
+
+      //return random null neighbor
+      return arr[Math.floor(Math.random() * arr.length)];
+   }
+
+   randomNullNeighborsNull = () => {
+      let keys = this.keys();
+      let arr = [];
+
+      for (let i = 0; i < keys.length; i++) {
+         let key = keys[i];
+         if (this.get(key.Q, key.R).group != null) continue;
+
+         let neighborList = this.neighborList(key.Q, key.R);
+         if(neighborList.length > 0) continue;
          arr.push(key);
       }
 
@@ -191,58 +288,6 @@ export default class HexmapClass {
       }
 
       return arr[Math.floor(Math.random() * arr.length)]
-   }
-
-   deleteIslands = () => {
-
-      let keyStrings = this.keyStrings();
-      let tileGroups = [];
-
-      let neighborKeysInList = (q, r) => {
-         let neighbors = this.neighborKeys(q, r);
-         let filteredNeighbors = [];
-
-         for (let i = 0; i < neighbors.length; i++) {
-            if (!keyStrings.includes(this.join(neighbors[i].Q, neighbors[i].R))) continue;
-            filteredNeighbors.push(neighbors[i]);
-         }
-
-         return filteredNeighbors;
-      }
-
-      let addNeighbors = (keyString, tileGroup) => {
-
-         tileGroup.add(keyString);
-
-         let keyIndex = keyStrings.indexOf(keyString);
-         if (keyIndex != -1) keyStrings.splice(keyIndex, 1);
-
-         let key = this.split(keyString);
-         let neighbors = neighborKeysInList(key.Q, key.R);
-
-         for (let i = 0; i < neighbors.length; i++) {
-            addNeighbors(this.join(neighbors[i].Q, neighbors[i].R), tileGroup);
-         }
-      }
-
-      while (keyStrings.length > 0) {
-
-         let tileGroup = new Set();
-         addNeighbors(keyStrings[0], tileGroup);
-         tileGroups.push(Array.from(tileGroup));
-
-      }
-
-      let tileGroupLengths = tileGroups.map(tileGroup => tileGroup.length);
-      let longestTileGroupIndex = tileGroupLengths.indexOf(Math.max(...tileGroupLengths));
-      tileGroups.splice(longestTileGroupIndex, 1);
-
-      let tilesToRemove = [].concat(...tileGroups);
-
-      for (let i = 0; i < tilesToRemove.length; i++) {
-         this.hexMap.delete(tilesToRemove[i]);
-      }
-
    }
 
 }
