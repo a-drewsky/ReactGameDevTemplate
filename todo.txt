@@ -1,0 +1,4 @@
+-Split map into groups
+-Assign groups to players
+-Draw group edges
+-Assign dice to groups

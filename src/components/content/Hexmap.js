@@ -72,7 +72,7 @@ export default class HexmapClass {
       return neighbors.map(key => this.split(key));
    }
 
-   //returns keys of all neighbors adjacent to (q, r) that are not in group {group} or adject to a tile with group {group}
+   //returns keys of all neighbors adjacent to (q, r) that have 6 neighbors
    neighborKeysInner = (q, r) => {
 
       let neighborKeys = this.neighborKeys(q, r);
@@ -82,6 +82,23 @@ export default class HexmapClass {
       for (let i = 0; i < neighborKeys.length; i++) {
          let key = neighborKeys[i];
          if (this.neighborKeys(key.Q, key.R).length != 6) continue;
+         filteredNeighbors.push(key);
+      }
+
+      return filteredNeighbors;
+
+   }
+
+   //returns keys of all neighbors adjacent to (q, r) that have 4 or less neighbors
+   neighborKeysOuter = (q, r) => {
+
+      let neighborKeys = this.neighborKeys(q, r);
+
+      let filteredNeighbors = [];
+
+      for (let i = 0; i < neighborKeys.length; i++) {
+         let key = neighborKeys[i];
+         if (this.neighborKeys(key.Q, key.R).length > 4) continue;
          filteredNeighbors.push(key);
       }
 
@@ -161,7 +178,19 @@ export default class HexmapClass {
       }
 
       return arr[Math.floor(Math.random() * arr.length)]
+   }
 
+   randomOuterTile = () => {
+      let keys = this.keys();
+      let arr = [];
+
+      for (let i = 0; i < keys.length; i++) {
+         let key = keys[i];
+         if (this.neighborKeys(key.Q, key.R).length == 6) continue;
+         arr.push(key);
+      }
+
+      return arr[Math.floor(Math.random() * arr.length)]
    }
 
    deleteIslands = () => {
@@ -172,12 +201,12 @@ export default class HexmapClass {
       let neighborKeysInList = (q, r) => {
          let neighbors = this.neighborKeys(q, r);
          let filteredNeighbors = [];
-   
+
          for (let i = 0; i < neighbors.length; i++) {
             if (!keyStrings.includes(this.join(neighbors[i].Q, neighbors[i].R))) continue;
             filteredNeighbors.push(neighbors[i]);
          }
-   
+
          return filteredNeighbors;
       }
 
@@ -186,17 +215,17 @@ export default class HexmapClass {
          tileGroup.add(keyString);
 
          let keyIndex = keyStrings.indexOf(keyString);
-         if(keyIndex != -1) keyStrings.splice(keyIndex, 1);
+         if (keyIndex != -1) keyStrings.splice(keyIndex, 1);
 
          let key = this.split(keyString);
          let neighbors = neighborKeysInList(key.Q, key.R);
 
-         for(let i=0; i<neighbors.length; i++){
+         for (let i = 0; i < neighbors.length; i++) {
             addNeighbors(this.join(neighbors[i].Q, neighbors[i].R), tileGroup);
          }
       }
 
-      while(keyStrings.length > 0){
+      while (keyStrings.length > 0) {
 
          let tileGroup = new Set();
          addNeighbors(keyStrings[0], tileGroup);
@@ -204,14 +233,13 @@ export default class HexmapClass {
 
       }
 
-
       let tileGroupLengths = tileGroups.map(tileGroup => tileGroup.length);
       let longestTileGroupIndex = tileGroupLengths.indexOf(Math.max(...tileGroupLengths));
       tileGroups.splice(longestTileGroupIndex, 1);
 
       let tilesToRemove = [].concat(...tileGroups);
 
-      for(let i=0; i<tilesToRemove.length; i++){
+      for (let i = 0; i < tilesToRemove.length; i++) {
          this.hexMap.delete(tilesToRemove[i]);
       }
 
