@@ -237,11 +237,9 @@ export default class HexmapClass {
          }
       }
 
-      console.log(groupNeighbors.size)
 
       let arr = Array.from(groupNeighbors).map(key => this.split(key));
 
-      console.log(arr)
 
       //return random null neighbor
       return arr[Math.floor(Math.random() * arr.length)];

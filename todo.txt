@@ -1,4 +1,7 @@
--Split map into groups
--Assign groups to players
--Draw group edges
 -Assign dice to groups
+
+-map sizes (small, medium and large)
+   -make number of groups and map generation based on map size
+   -small 10 groups, medium 20 groups, large 30 groups
+
+-When splitting map into groups, prioritize adding neighbors that aren't adjacent to another group

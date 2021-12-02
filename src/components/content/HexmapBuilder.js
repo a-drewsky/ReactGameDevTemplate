@@ -32,30 +32,6 @@ export default class HexgridBuilderClass {
       }
    }
 
-   // createGroups = (numGroups) => {
-
-
-   //    let groupSize = Math.floor(this.hexMap.size() / numGroups);
-   //    let selected = this.hexMap.randomNullGroup();
-   //    this.hexMap.set(selected.Q, selected.R, {
-   //       group: 1
-   //    })
-
-   //    for(let i=0; i<groupSize; i++){
-   //       let neighbors = this.hexMap.neighborKeysFiltered(selected.Q, selected.R, 1)
-
-   //       if(neighbors.length == 0) break;
-
-   //       selected = neighbors[Math.floor(Math.random() * neighbors.length)];
-
-   //       this.hexMap.set(selected.Q, selected.R, {
-   //          group: 1
-   //       })
-   //    }
-   //    this.groupIslands(groupSize);
-
-   // }
-
    createGroups = (numGroups) => {
 
       let keyStrings = this.hexMap.keyStrings();
@@ -73,8 +49,6 @@ export default class HexgridBuilderClass {
       while(keyStrings.length > 0){
          for(let i=0; i<numGroups; i++){
             let selected = this.hexMap.randomGroupNeighbor(i);
-
-            console.log(selected)
 
             if(selected==null) continue;
    
@@ -156,66 +130,6 @@ export default class HexgridBuilderClass {
             this.tileRemoved++;
          }
       }
-   }
-
-   groupIslands = (groupSize) => {
-      
-      let keyStrings = this.hexMap.keyStringsNullGroup();
-      let tileGroups = [];
-
-      let neighborKeysInList = (q, r) => {
-         let neighbors = this.hexMap.neighborKeysNull(q, r);
-         let filteredNeighbors = [];
-
-         for (let i = 0; i < neighbors.length; i++) {
-            if (!keyStrings.includes(this.hexMap.join(neighbors[i].Q, neighbors[i].R))) continue;
-            filteredNeighbors.push(neighbors[i]);
-         }
-
-         return filteredNeighbors;
-      }
-
-      let addNeighbors = (keyString, tileGroup) => {
-
-         tileGroup.add(keyString);
-
-         let keyIndex = keyStrings.indexOf(keyString);
-         if (keyIndex != -1) keyStrings.splice(keyIndex, 1);
-
-         let key = this.hexMap.split(keyString);
-         let neighbors = neighborKeysInList(key.Q, key.R);
-
-         for (let i = 0; i < neighbors.length; i++) {
-            addNeighbors(this.hexMap.join(neighbors[i].Q, neighbors[i].R), tileGroup);
-         }
-      }
-
-      while (keyStrings.length > 0) {
-
-         let tileGroup = new Set();
-         addNeighbors(keyStrings[0], tileGroup);
-         tileGroups.push(Array.from(tileGroup));
-
-      }
-
-      console.log(tileGroups.length)
-
-      let tileGroupLengths = tileGroups.map(tileGroup => tileGroup.length);
-
-      for(let i=0; i<tileGroups.length; i++){
-         if(tileGroupLengths[i] > groupSize*0.75) tileGroups.splice(i, 1);
-      }
-      
-
-      let tilesToGroup = [].concat(...tileGroups);
-
-      for (let i = 0; i < tilesToGroup.length; i++) {
-         let key = this.hexMap.split(tilesToGroup[i])
-         this.hexMap.set(key.Q, key.R, {
-            group: 1
-         });
-      }
-
    }
 
    deleteIslands = () => {
