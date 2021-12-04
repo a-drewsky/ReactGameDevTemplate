@@ -9,22 +9,23 @@ export default class hexGridClass {
 
       this.ctx = ctx
       this.size = (mapSize == "small" ? canvasScalarSize * 4.5 : mapSize == "medium" ? canvasScalarSize * 3.5 : canvasScalarSize * 2.5)
+      this.squish = 0.75;
       this.numGroups = (mapSize == "small" ? 10 : mapSize == "medium" ? 20 : 30)
       this.numPlayers = numPlayers
       this.mapGeneration = mapGeneration
       this.Q = Math.floor((canvasW / 2 / (Math.sqrt(3) * this.size)) - 1);
-      this.R = Math.floor((canvasH / 2 / (3 / 2 * this.size)) - 1);
+      this.R = Math.floor((canvasH / 2 / (3 / 2 * this.size * this.squish)) - 1);
       this.X = (canvasW / 2 - (this.Q * Math.sqrt(3) * this.size) - Math.sqrt(3) * this.size / 4);
-      this.Y = (canvasH / 2 - (this.R * (3 / 2) * this.size) - this.size / 4);
+      this.Y = (canvasH / 2 - (this.R * (3 / 2) * this.size * this.squish) - this.size / 4);
       this.VecQ = { x: Math.sqrt(3) * this.size, y: 0 }
       this.VecR = { x: Math.sqrt(3) / 2 * this.size, y: 3 / 2 * this.size }
 
       this.hexMap = new HexmapClass();
-      this.HexagonClass = new HexagonClass(ctx, this.size);
+      this.HexagonClass = new HexagonClass(ctx, this.size, this.squish);
       this.hexMapBuilder = new HexgridBuilderClass(this.hexMap, mapSize);
       this.groupMap = [];
 
-      this.colorMap = ['Coral', 'BlueViolet', 'DarkSeaGreen', 'FireBrick', 'IndianRed', 'LightPink', 'LightGreen', 'MediumPurple', 'Orchid', 'LightCyan']
+      this.colorMap = ['FireBrick', 'DarkSeaGreen', 'BlueViolet', 'Coral', 'IndianRed', 'LightPink', 'LightGreen', 'MediumPurple', 'Orchid', 'LightCyan']
 
    }
 
@@ -124,7 +125,7 @@ export default class hexGridClass {
          let keyObj = this.hexMap.split(key);
 
          let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
-         let yOffset = this.VecQ.y * keyObj.Q + this.VecR.y * keyObj.R;
+         let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
 
          this.HexagonClass.drawHexagon(this.X + xOffset, this.Y + yOffset, this.colorMap[this.groupMap[value.group].player]);
       }
@@ -134,7 +135,7 @@ export default class hexGridClass {
          let keyObj = this.hexMap.split(key);
 
          let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
-         let yOffset = this.VecQ.y * keyObj.Q + this.VecR.y * keyObj.R;
+         let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
 
          let edges = [];
          if (value.group != null) edges = this.hexMap.getGroupEdges(keyObj.Q, keyObj.R);
@@ -144,10 +145,10 @@ export default class hexGridClass {
 
       for (let i = 0; i < this.groupMap.length; i++) {
          this.ctx.fillStyle = 'lightGrey'
-         this.ctx.fillRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y - this.size/3, this.size/1.5, this.size/1.5);
-         this.ctx.strokeRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y - this.size/3, this.size/1.5, this.size/1.5);
+         this.ctx.fillRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y * this.squish - this.size/3, this.size/1.5, this.size/1.5);
+         this.ctx.strokeRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y * this.squish - this.size/3, this.size/1.5, this.size/1.5);
          this.ctx.fillStyle = 'black'
-         this.ctx.fillText(this.groupMap[i].dice, this.X + this.groupMap[i].drawPos.X, this.Y + this.groupMap[i].drawPos.Y + 1);
+         this.ctx.fillText(this.groupMap[i].dice, this.X + this.groupMap[i].drawPos.X, this.Y + this.groupMap[i].drawPos.Y * this.squish + 1);
       }
    }
 

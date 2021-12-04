@@ -23,7 +23,7 @@ const ContentPanel = () => {
 
       ctx.current = context;
 
-      let HexGrid = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, "medium", 10, "algorithmic");
+      let HexGrid = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, "medium", 2, "noise");
       HexGrid.createHexMap();
       HexGrid.drawHexGrid();
       
