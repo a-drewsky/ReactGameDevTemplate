@@ -1,7 +1,6 @@
--Assign dice to groups
+-squish the Y-axis
 
--map sizes (small, medium and large)
-   -make number of groups and map generation based on map size
-   -small 10 groups, medium 20 groups, large 30 groups
+-create form to generate new map
+   -Game options: number of players (1-10), map size (small, medium, large), map generation (algorithmic or noise)
 
--When splitting map into groups, prioritize adding neighbors that aren't adjacent to another group
+-refactor if necceassary

@@ -1,28 +1,37 @@
+import noise from "./perlin";
+
 export default class HexgridBuilderClass {
 
-   constructor(hexMap){
+   constructor(hexMap, mapSize) {
 
       this.hexMap = hexMap;
 
-      this.outerMinGen = 8;
-      this.outerMaxGen = 12;
-      this.outerRecurssionBoundry = 0.95;
-      this.outerMinRecurssionRoll = 0.2;
-      this.outerRecurssionChance = 0.95;
+      this.outerMinGen = (mapSize == "small" ? 2 : mapSize == "medium" ? 4 : 8)
+      this.outerMaxGen = (mapSize == "small" ? 4 : mapSize == "medium" ? 8 : 12)
+      this.outerRecurssionBoundry = (mapSize == "small" ? 0.85 : mapSize == "medium" ? 0.9 : 0.95)
+      this.outerMinRecurssionRoll = (mapSize == "small" ? 0.4 : mapSize == "medium" ? 0.3 : 0.2)
+      this.outerRecurssionChance = (mapSize == "small" ? 0.85 : mapSize == "medium" ? 0.9 : 0.95)
 
-      this.innerMinGen = 8;
-      this.innerMaxGen = 12;
-      this.innerRecurssionBoundry = 0.95;
-      this.innerMinRecurssionRoll = 0.1;
-      this.innerRecurssionChance = 0.9;
+      this.innerMinGen = (mapSize == "small" ? 4 : mapSize == "medium" ? 6 : 8)
+      this.innerMaxGen = (mapSize == "small" ? 5 : mapSize == "medium" ? 8 : 12)
+      this.innerRecurssionBoundry = (mapSize == "small" ? 0.85 : mapSize == "medium" ? 0.9 : 0.95)
+      this.innerMinRecurssionRoll = (mapSize == "small" ? 0.15 : mapSize == "medium" ? 0.125 : 0.1);
+      this.innerRecurssionChance = (mapSize == "small" ? 0.8 : mapSize == "medium" ? 0.95 : 0.9)
 
-      this.outerMaxTilesRemovedPercent = 0.35;
-      this.totalMaxTilesRemovedPercent = 0.5;
+      this.outerMaxTilesRemovedPercent = (mapSize == "small" ? 0.25 : mapSize == "medium" ? 0.3 : 0.35)
+      this.totalMaxTilesRemovedPercent = (mapSize == "small" ? 0.4 : mapSize == "medium" ? 0.45 : 0.5)
 
+      this.noiseSeedMultiplier = 10
+      this.noiseFluctuation = (mapSize == "small" ? 3 : mapSize == "medium" ? 4 : 5)
+      this.noiseThreshold = 0.4
+      
       this.tileRemoved = 0;
    }
 
    generateMap = (Qgen, Rgen) => {
+
+      this.maxTilesRemoved = Qgen * Rgen * this.totalMaxTilesRemovedPercent;
+
       for (let r = 0; r < Rgen; r++) {
          for (let q = -1 * Math.floor(r / 2); q < Qgen - Math.floor(r / 2); q++) {
             this.hexMap.set(q, r, {
@@ -36,8 +45,13 @@ export default class HexgridBuilderClass {
 
       let keyStrings = this.hexMap.keyStrings();
 
-      for(let i=0; i<numGroups; i++){
+      if (keyStrings.length < numGroups) return -1;
+      if(this.hexMap.size() < this.maxTilesRemoved) return -1;
+
+      for (let i = 0; i < numGroups; i++) {
          let selected = this.hexMap.randomNullNeighborsNull();
+         
+         if (selected == null) return -1;
 
          keyStrings.splice(keyStrings.indexOf(this.hexMap.join(selected.Q, selected.R)), 1);
 
@@ -46,20 +60,38 @@ export default class HexgridBuilderClass {
          })
       }
 
-      while(keyStrings.length > 0){
-         for(let i=0; i<numGroups; i++){
+      while (keyStrings.length > 0) {
+         for (let i = 0; i < numGroups; i++) {
             let selected = this.hexMap.randomGroupNeighbor(i);
 
-            if(selected==null) continue;
-   
+            if (selected == null) continue;
+
             keyStrings.splice(keyStrings.indexOf(this.hexMap.join(selected.Q, selected.R)), 1);
-   
+
             this.hexMap.set(selected.Q, selected.R, {
                group: i
             })
          }
       }
 
+      return 1;
+
+   }
+
+   removeNoiseTiles = () => {
+
+      let seed = Math.random() * this.noiseSeedMultiplier;
+
+      for (let [key, value] of this.hexMap.map()) {
+
+         let keyObj = this.hexMap.split(key);
+
+         let tileNoise = noise(seed+keyObj.Q/this.noiseFluctuation, seed+keyObj.R/this.noiseFluctuation);
+
+         if(tileNoise < this.noiseThreshold) this.hexMap.delete(keyObj.Q, keyObj.R);
+
+      }
+      
 
    }
 
@@ -124,7 +156,7 @@ export default class HexgridBuilderClass {
 
          for (let i = 0; i < toRemove.length; i++) {
 
-            if(this.tileRemoved > totalMaxTilesRemoved) break;
+            if (this.tileRemoved > totalMaxTilesRemoved) break;
 
             this.hexMap.delete(toRemove[i].Q, toRemove[i].R);
             this.tileRemoved++;

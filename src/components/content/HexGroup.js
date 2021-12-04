@@ -4,6 +4,7 @@ export default class HexGroup {
 
       this.player = player;
       this.drawPos = drawPos
+      this.dice = 1;
       this.selected = false;
 
    }

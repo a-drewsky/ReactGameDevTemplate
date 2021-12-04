@@ -170,6 +170,27 @@ export default class HexmapClass {
 
       for (let i = 0; i < neighbors.length; i++) {
          if (this.get(neighbors[i].Q, neighbors[i].R).group != null) continue;
+
+         let neighborNeighbors = this.neighborKeys(neighbors[i].Q, neighbors[i].R);
+         let groupNeighbors = false;
+         for(let j=0; j<neighborNeighbors.length; j++){
+            if(this.get(neighborNeighbors[j].Q, neighborNeighbors[j].R).group != null){
+               groupNeighbors = true;
+               break;
+            }
+         }
+
+         if(!groupNeighbors) filteredNeighbors.push(neighbors[i]);
+      }
+
+      if(filteredNeighbors.length > 0){
+         return filteredNeighbors;
+      } 
+
+      filteredNeighbors = [];
+
+      for (let i = 0; i < neighbors.length; i++) {
+         if (this.get(neighbors[i].Q, neighbors[i].R).group != null) continue;
          filteredNeighbors.push(neighbors[i]);
       }
 
