@@ -1,5 +1,4 @@
 
--create form to generate new map
-   -Game options: number of players (1-10), map size (small, medium, large), map generation (algorithmic or noise)
+-not centering correctly
 
 -refactor if necceassary

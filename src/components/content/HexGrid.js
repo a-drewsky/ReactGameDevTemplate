@@ -8,6 +8,10 @@ export default class hexGridClass {
    constructor(ctx, canvasScalarSize, canvasW, canvasH, mapSize, numPlayers, mapGeneration) {
 
       this.ctx = ctx
+      this.canvasDims = {
+         width: canvasW,
+         height: canvasH
+      }
       this.size = (mapSize == "small" ? canvasScalarSize * 4.5 : mapSize == "medium" ? canvasScalarSize * 3.5 : canvasScalarSize * 2.5)
       this.squish = 0.75;
       this.numGroups = (mapSize == "small" ? 10 : mapSize == "medium" ? 20 : 30)
@@ -15,7 +19,7 @@ export default class hexGridClass {
       this.mapGeneration = mapGeneration
       this.Q = Math.floor((canvasW / 2 / (Math.sqrt(3) * this.size)) - 1);
       this.R = Math.floor((canvasH / 2 / (3 / 2 * this.size * this.squish)) - 1);
-      this.X = (canvasW / 2 - (this.Q * Math.sqrt(3) * this.size) - Math.sqrt(3) * this.size / 4);
+      this.X = (canvasW / 2 - (this.Q * Math.sqrt(3) * this.size) - Math.sqrt(3) * this.size / (mapSize == "small" ? 1.5 : mapSize == "medium" ? 2 : 4));
       this.Y = (canvasH / 2 - (this.R * (3 / 2) * this.size * this.squish) - this.size / 4);
       this.VecQ = { x: Math.sqrt(3) * this.size, y: 0 }
       this.VecR = { x: Math.sqrt(3) / 2 * this.size, y: 3 / 2 * this.size }
@@ -120,6 +124,8 @@ export default class hexGridClass {
 
    drawHexGrid = () => {
 
+      this.ctx.clearRect(0, 0, this.canvasDims.width, this.canvasDims.height);
+
       for (let [key, value] of this.hexMap.map()) {
 
          let keyObj = this.hexMap.split(key);
@@ -146,7 +152,7 @@ export default class hexGridClass {
       for (let i = 0; i < this.groupMap.length; i++) {
          this.ctx.fillStyle = 'lightGrey'
          this.ctx.fillRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y * this.squish - this.size/3, this.size/1.5, this.size/1.5);
-         this.ctx.strokeRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y * this.squish - this.size/3, this.size/1.5, this.size/1.5);
+         //this.ctx.strokeRect(this.X + this.groupMap[i].drawPos.X - this.size/3, this.Y + this.groupMap[i].drawPos.Y * this.squish - this.size/3, this.size/1.5, this.size/1.5);
          this.ctx.fillStyle = 'black'
          this.ctx.fillText(this.groupMap[i].dice, this.X + this.groupMap[i].drawPos.X, this.Y + this.groupMap[i].drawPos.Y * this.squish + 1);
       }
