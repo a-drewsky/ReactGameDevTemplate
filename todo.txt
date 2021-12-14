@@ -1,4 +1,2 @@
 
--not centering correctly
-
--refactor if necceassary
+-implement game logic

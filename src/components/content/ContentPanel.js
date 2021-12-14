@@ -28,9 +28,8 @@ const ContentPanel = () => {
    useEffect(() => {
 
       let context = canvas.current.getContext("2d");
-      context.scale(2, 2);
       context.lineCap = 'round';
-      context.lineWidth = canvas.current.width * 0.003;
+      context.lineWidth = canvas.current.width * 0.0045;
       context.font = `${canvas.current.width * 0.01}px Arial`;
       context.textAlign = 'center';
       context.textBaseline = 'middle'
@@ -84,11 +83,9 @@ const ContentPanel = () => {
                onMouseEnter={mouseEnter}
                onMouseLeave={mouseLeave}
                style={
-                  { width: `${window.innerWidth / 6}px` },
-                  { height: `${window.innerWidth / 6}px` },
-                  { border: 'solid 2px black' }
+                  { imageRendering: 'crisp-edges' }
                }
-               className="mx-auto"
+               className="mx-auto border"
             />
          </Row>
          <Form className='mt-5 mb-5 border w-50 mx-auto' onSubmit={updateMap}>

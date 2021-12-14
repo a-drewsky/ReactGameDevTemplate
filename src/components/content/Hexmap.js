@@ -98,6 +98,39 @@ export default class HexmapClass {
       return filteredKeys;
    }
 
+   getGroupCenterTiles = (group, excludedTiles) => {
+      let keys = this.getGroupTiles(group);
+      let filteredKeys = [];
+
+      let numNeighbors = 6;
+
+      while(filteredKeys.length == 0){
+
+         for(let i=0; i<keys.length; i++){
+
+            let neighbors = this.neighborKeys(keys[i].Q, keys[i].R);
+   
+            if(neighbors.length < numNeighbors) continue;
+
+            if(excludedTiles.includes(this.join(keys[i].Q, keys[i].R))) continue;
+   
+            let innerNeighbors = 0;
+            for(let j=0; j<neighbors.length; j++){
+               if(this.get(neighbors[j].Q, neighbors[j].R).group==group) innerNeighbors++;
+            }
+            if(innerNeighbors < numNeighbors) continue;
+   
+            filteredKeys.push(keys[i]);
+         }
+
+         numNeighbors--;
+
+      }
+      
+
+       return filteredKeys;
+   }
+
    //returns keys of all neighbors adjacent to (q, r)
    neighborKeys = (q, r) => {
       let neighbors = [];
