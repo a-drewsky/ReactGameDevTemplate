@@ -1,10 +1,10 @@
 export default class HexGroup {
 
-   constructor(player, drawPos, drawHexPos){
+   constructor(playerNumber, drawPos, drawHexPos){
 
-      this.player = player;
+      this.playerNumber = playerNumber;
       this.drawPos = drawPos
-      this.drawHexPos = drawHexPos
+      this.drawHexPos = drawHexPos;
       this.dice = 1;
       this.maxDice = 8;
       this.selected = false;

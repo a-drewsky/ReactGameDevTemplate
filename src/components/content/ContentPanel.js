@@ -12,6 +12,8 @@ const ContentPanel = () => {
    const [mapSize, setMapSize] = useState("large");
    const [mapGeneration, setMapGeneration] = useState("none");
 
+   const [hexGrid, setHexGrid] = useState(null);
+
    const updateMap = (e) => {
       e.preventDefault();
 
@@ -30,18 +32,28 @@ const ContentPanel = () => {
       let context = canvas.current.getContext("2d");
       context.lineCap = 'round';
       context.lineWidth = canvas.current.width * 0.0045;
-      context.font = `${canvas.current.width * 0.01}px Arial`;
-      context.textAlign = 'center';
-      context.textBaseline = 'middle'
+      // context.font = `${canvas.current.width * 0.01}px Arial`;
+      // context.textAlign = 'center';
+      // context.textBaseline = 'middle'
 
       ctx.current = context;
 
-      let HexGrid = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, mapSize, numberOfPlayers, mapGeneration);
-      HexGrid.createHexMap();
-      HexGrid.drawHexGrid();
+      let hexGrid_ = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, mapSize, numberOfPlayers, mapGeneration);
 
+      setHexGrid(hexGrid_);
 
    }, [canvas])
+
+   useEffect(() => {
+      if(hexGrid == null)return;
+      if(hexGrid.loaded==false){
+         hexGrid.createHexMap();
+         return
+      } 
+
+      hexGrid.drawHexGrid();
+
+   }, [hexGrid])
 
 
    const mouseDown = ({ nativeEvent }) => {
