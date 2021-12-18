@@ -17,9 +17,9 @@ const ContentPanel = () => {
    const updateMap = (e) => {
       e.preventDefault();
 
-      let HexGrid = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, mapSize, numberOfPlayers, mapGeneration);
-      HexGrid.createHexMap();
-      HexGrid.drawHexGrid();
+      let hexGrid_ = new HexGridClass(ctx.current, s(1), canvas.current.width, canvas.current.height, mapSize, numberOfPlayers, mapGeneration);
+      
+      setHexGrid(hexGrid_);
 
    }
 
@@ -58,6 +58,8 @@ const ContentPanel = () => {
 
    const mouseDown = ({ nativeEvent }) => {
       const { offsetX, offsetY } = nativeEvent;
+
+      hexGrid.click(offsetX, offsetY);
 
    }
 
