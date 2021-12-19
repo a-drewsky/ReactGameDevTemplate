@@ -14,6 +14,8 @@ export default class HexGroup {
          Math.floor(Math.random() * 6), 
          Math.floor(Math.random() * 6), 
          Math.floor(Math.random() * 6), 
+         Math.floor(Math.random() * 6),
+         Math.floor(Math.random() * 6),
          Math.floor(Math.random() * 6)
       ]
 
