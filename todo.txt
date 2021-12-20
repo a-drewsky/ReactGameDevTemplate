@@ -1,7 +1,5 @@
 
--Add animation
-   -(dice image) fight (dice image) while battle is in progress
-   -show numbers colored for 2 seconds also show losing dice in red color
+-dice size and position bug on different map sizes
 
 -test screen sizes
 

@@ -21,6 +21,7 @@ const ContentPanel = () => {
    const updateMap = (e) => {
       e.preventDefault();
 
+      hexGrid.clear();
       let hexGrid_ = new HexGridClass(ctx.current, ctx2.current, s(1), canvas.current.width, canvas.current.height, canvas2.current.width, canvas2.current.height, mapSize, numberOfPlayers, mapGeneration);
 
       setHexGrid(hexGrid_);
@@ -38,7 +39,6 @@ const ContentPanel = () => {
       context.lineWidth = canvas.current.width * 0.0045;
 
       let context2 = canvas2.current.getContext("2d");
-      context2.font = `${canvas2.current.width * 0.03}px Arial`;
       context2.textAlign = 'center';
       context2.textBaseline = 'middle'
       context2.fillStyle = 'black'

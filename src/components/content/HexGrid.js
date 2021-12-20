@@ -61,27 +61,33 @@ export default class hexGridClass {
 
       this.buttonWidth = this.canvasDims.width / 5.625;
 
-      this.battleTransitionTime = 2;
+      this.battleTransitionTime = 0.5;
       this.battleTransitionTimer = null;
       this.battleTransition = false;
+
+      this.endTurnTransitionTime = null;
+      this.endTurnTransitionTimer = null;
+      this.endTurnInterval = null;
+
+      this.fightBoxSize = this.canvasDims.width / 2.5;
+   }
+
+   clear = () => {
+      clearInterval(this.currentBattle.interval);
+      clearInterval(this.endTurnInterval);
    }
 
    endBattle = () => {
 
       clearInterval(this.currentBattle.interval)
 
-      let attackerRollTotal = 0;
-      for (let i = 0; i < this.currentBattle.attackerRolls.length; i++) {
-         if (this.currentBattle.attackerStoppedRolls[i] == false) continue;
-         attackerRollTotal += this.currentBattle.attackerRolls[i] + 1;
-      }
+      this.battleTransitionTimer = null;
+      this.battleTransition = false;
+
+      let attackerRollTotal = this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0);
 
       //defender roll total
-      let defenderRollTotal = 0;
-      for (let i = 0; i < this.currentBattle.defenderRolls.length; i++) {
-         if (this.currentBattle.defenderStoppedRolls[i] == false) continue;
-         defenderRollTotal += this.currentBattle.defenderRolls[i] + 1;
-      }
+      let defenderRollTotal = this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0);
 
       //result
       if (attackerRollTotal > defenderRollTotal) {
@@ -125,6 +131,8 @@ export default class hexGridClass {
          this.currentBattle.defenderStoppedRolls[i] = false;
       }
 
+      this.drawFightBox();
+
       this.currentBattle.interval = setInterval(() => {
 
          this.ctx2.clearRect(0, 0, this.canvas2Dims.width, this.canvas2Dims.height);
@@ -144,9 +152,20 @@ export default class hexGridClass {
             }
          }
 
-         if (battleDone) {
-            this.endBattle();
-            return;
+         if (battleDone && this.battleTransition == false) {
+            this.battleTransition = true;
+            this.battleTransitionTimer = 0;
+            this.drawHexagons();
+            this.drawGroupEdges();
+            this.drawDice();
+         }
+
+         if (this.battleTransition) {
+            if (this.battleTransitionTimer >= this.battleTransitionTime) {
+               this.endBattle();
+               return;
+            }
+            this.battleTransitionTimer += 0.1;
          }
 
          //attacker roll total
@@ -155,7 +174,10 @@ export default class hexGridClass {
             if (this.currentBattle.attackerStoppedRolls[i] == false) continue;
             attackerRollTotal += this.currentBattle.attackerRolls[i] + 1;
          }
-         this.ctx2.fillText(attackerRollTotal, this.canvas2Dims.width / 2 - 50, this.canvas2Dims.height / 2)
+         this.ctx2.fillStyle = 'black'
+         if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) <= this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) this.ctx2.fillStyle = 'red'
+         this.ctx2.font = `${this.canvas2Dims.width * 0.05}px Arial`;
+         this.ctx2.fillText(attackerRollTotal, this.canvas2Dims.width / 2 - this.canvas2Dims.width/20, this.canvas2Dims.height / 2)
 
          //defender roll total
          let defenderRollTotal = 0;
@@ -163,7 +185,10 @@ export default class hexGridClass {
             if (this.currentBattle.defenderStoppedRolls[i] == false) continue;
             defenderRollTotal += this.currentBattle.defenderRolls[i] + 1;
          }
-         this.ctx2.fillText(defenderRollTotal, this.canvas2Dims.width / 2 + 50, this.canvas2Dims.height / 2)
+         this.ctx2.fillStyle = 'black'
+         if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) this.ctx2.fillStyle = 'red'
+         this.ctx2.font = `${this.canvas2Dims.width * 0.05}px Arial`;
+         this.ctx2.fillText(defenderRollTotal, this.canvas2Dims.width / 2 + this.canvas2Dims.width/20, this.canvas2Dims.height / 2)
 
          //roll attacker dice
          for (let i = 0; i < 4; i++) {
@@ -179,8 +204,9 @@ export default class hexGridClass {
 
                this.currentBattle.attackerRolls[i] = newRoll;
             }
-
-            this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.attacker).playerNumber+1) * this.imageSize, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
+            if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) <= this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) {
+               this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
+            } else this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
          }
          for (let i = 4; i < 8; i++) {
 
@@ -195,8 +221,9 @@ export default class hexGridClass {
 
                this.currentBattle.attackerRolls[i] = newRoll;
             }
-
-            this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.attacker).playerNumber+1) * this.imageSize, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4), this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
+            if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) <= this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) {
+               this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4), this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
+            } else this.ctx2.drawImage(this.diceSheet, this.currentBattle.attackerRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4), this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
          }
 
 
@@ -214,8 +241,9 @@ export default class hexGridClass {
 
                this.currentBattle.defenderRolls[i] = newRoll;
             }
-
-            this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.defender).playerNumber+1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i) - this.dieSize * 2, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
+            if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) {
+               this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i) - this.dieSize * 2, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
+            } else this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * i) - this.dieSize * 2, this.RollBuffer, this.dieSize * 2, this.dieSize * 2)
          }
          for (let i = 4; i < 8; i++) {
 
@@ -230,13 +258,15 @@ export default class hexGridClass {
 
                this.currentBattle.defenderRolls[i] = newRoll;
             }
-
-            this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.defender).playerNumber+1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4)) - this.dieSize * 2, this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
+            if (this.battleTransition && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)) {
+               this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4)) - this.dieSize * 2, this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
+            } else this.ctx2.drawImage(this.diceSheet, this.currentBattle.defenderRolls[i] * this.imageSize, (this.groupMap.get(this.currentBattle.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2Dims.width - (this.RollBuffer + (this.diceSize * 2 + this.RollBuffer) * (i - 4)) - this.dieSize * 2, this.RollBuffer * 2 + this.dieSize * 2, this.dieSize * 2, this.dieSize * 2)
          }
 
          //draw stop all buttons
-         this.drawButton(this.ctx2, 'Stop All', 'lightGrey', this.RollBuffer, this.RollBuffer * 3 + this.dieSize * 4, this.buttonWidth, this.buttonWidth/3)
-         this.drawButton(this.ctx2, 'Stop All', 'lightGrey', this.canvas2Dims.width - this.RollBuffer - this.buttonWidth, this.RollBuffer * 3 + this.dieSize * 4, this.buttonWidth, this.buttonWidth/3)
+         this.ctx2.font = `${this.canvas2Dims.width * 0.03}px Arial`;
+         this.drawButton(this.ctx2, 'Stop All', 'lightGrey', this.RollBuffer, this.RollBuffer * 3 + this.dieSize * 4, this.buttonWidth, this.buttonWidth / 3)
+         this.drawButton(this.ctx2, 'Stop All', 'lightGrey', this.canvas2Dims.width - this.RollBuffer - this.buttonWidth, this.RollBuffer * 3 + this.dieSize * 4, this.buttonWidth, this.buttonWidth / 3)
 
       }, 1000 / 10)
 
@@ -245,13 +275,13 @@ export default class hexGridClass {
    click2 = (x, y) => {
 
       //check attacker stop all button
-      if(x > this.RollBuffer && y > this.RollBuffer * 3 + this.dieSize * 4 && x < this.RollBuffer + this.buttonWidth && y < this.RollBuffer * 3 + this.dieSize * 4 + this.buttonWidth/3){
-         for(let i=0; i<this.currentBattle.attackerStoppedRolls.length; i++) this.currentBattle.attackerStoppedRolls[i] = true;
+      if (x > this.RollBuffer && y > this.RollBuffer * 3 + this.dieSize * 4 && x < this.RollBuffer + this.buttonWidth && y < this.RollBuffer * 3 + this.dieSize * 4 + this.buttonWidth / 3) {
+         for (let i = 0; i < this.currentBattle.attackerStoppedRolls.length; i++) this.currentBattle.attackerStoppedRolls[i] = true;
       }
 
       //check defender stop all button
-      if(x > this.canvas2Dims.width - this.RollBuffer - this.buttonWidth && y > this.RollBuffer * 3 + this.dieSize * 4 && x < this.canvas2Dims.width - this.RollBuffer - this.buttonWidth + this.buttonWidth && y < this.RollBuffer * 3 + this.dieSize * 4 + this.buttonWidth/3){
-         for(let i=0; i<this.currentBattle.defenderStoppedRolls.length; i++) this.currentBattle.defenderStoppedRolls[i] = true;
+      if (x > this.canvas2Dims.width - this.RollBuffer - this.buttonWidth && y > this.RollBuffer * 3 + this.dieSize * 4 && x < this.canvas2Dims.width - this.RollBuffer - this.buttonWidth + this.buttonWidth && y < this.RollBuffer * 3 + this.dieSize * 4 + this.buttonWidth / 3) {
+         for (let i = 0; i < this.currentBattle.defenderStoppedRolls.length; i++) this.currentBattle.defenderStoppedRolls[i] = true;
       }
 
       //check attacker dice
@@ -300,27 +330,51 @@ export default class hexGridClass {
 
    endTurn = () => {
 
-      if(this.currentBattle.defender != null) return;
-      if(this.currentBattle.attacker != null) this.currentBattle.attacker = null;
+      if (this.currentBattle.defender != null) return;
+      if (this.currentBattle.attacker != null) this.currentBattle.attacker = null;
 
       let playerGroups = [...this.groupMap.entries()].filter(group => group[1].playerNumber == this.playerTurn);
 
-      let numDice = playerGroups.length;
+      this.endTurnTransitionTime = playerGroups.length;
+      this.endTurnTransitionTimer = 0;
 
-      for (let j = 0; j < numDice; j++) {
+      this.endTurnInterval = setInterval(() => {
+         let playerGroups = [...this.groupMap.entries()].filter(group => group[1].playerNumber == this.playerTurn);
          let selectedGroup = playerGroups[Math.floor(Math.random() * playerGroups.length)];
 
-         if (playerGroups.filter(group => group[1].dice < 8).length == 0) break;
+         if (playerGroups.filter(group => group[1].dice < 8).length == 0) {
+            this.playerTurn++;
+            if (this.playerTurn == this.numPlayers) this.playerTurn = 0;
+
+            this.drawHexGrid();
+
+            clearInterval(this.endTurnInterval)
+            return;
+         }
          while (selectedGroup[1].dice >= 8) selectedGroup = playerGroups[Math.floor(Math.random() * playerGroups.length)];
 
          selectedGroup[1].dice++;
          this.groupMap.set(selectedGroup[0], selectedGroup[1]);
-      }
 
-      this.playerTurn++;
-      if (this.playerTurn == this.numPlayers) this.playerTurn = 0;
-      
-      this.drawHexGrid();
+         this.endTurnTransitionTimer++;
+
+         this.drawHexGrid();
+
+         if (this.endTurnTransitionTimer >= this.endTurnTransitionTime) {
+            this.playerTurn++;
+            if (this.playerTurn == this.numPlayers) this.playerTurn = 0;
+
+            this.endTurnTransitionTimer = null;
+            this.endTurnTransitionTime = null;
+
+            this.drawHexGrid();
+
+            clearInterval(this.endTurnInterval)
+         }
+
+      }, 1000 / 5);
+
+
    }
 
    click = (x, y) => {
@@ -377,6 +431,7 @@ export default class hexGridClass {
       }
       hexClicked = roundToNearestHex(hexClicked);
 
+      if (this.endTurnTransitionTimer != null) return;
 
       //test end turn button clicked
       let buttonX = this.buttonWidth * 0.0625
@@ -757,22 +812,43 @@ export default class hexGridClass {
          this.ctx.ellipse(this.X + value.drawPos.X + this.diceSize * 0.25, this.Y + value.drawPos.Y * this.squish + this.diceSize / 8, this.diceSize / 2, this.diceSize / 4, Math.PI, Math.PI / 2, Math.PI * 2);
          this.ctx.fill();
 
+         //this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0)
+
          for (let j = 4; j < 8; j++) {
-            if (value.dice > j) this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], sheetHasImage ? this.imageSize * (value.playerNumber + 1) : 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 1.35, this.Y + value.drawPos.Y * this.squish - this.diceSize * (1 + (j - 4) * 0.55), this.diceSize, this.diceSize);
-            //if(value.dice > j) this.ctx.drawImage(this.testImage, this.X + value.drawPos.X - this.diceSize * 1.35, this.Y + value.drawPos.Y * this.squish - this.diceSize * (1 + (j-4)*0.55), this.diceSize, this.diceSize);
-            else break;
+            if (value.dice > j) {
+               if (this.battleTransition) {
+                  if (
+                     (key == this.currentBattle.defender && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0))
+                     ||
+                     (key == this.currentBattle.attacker && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) <= this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0))
+                  ) {
+                     this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 1.35, this.Y + value.drawPos.Y * this.squish - this.diceSize * (1 + (j - 4) * 0.55), this.diceSize, this.diceSize);
+                     continue;
+                  }
+               }
+               this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], sheetHasImage ? this.imageSize * (value.playerNumber + 1) : 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 1.35, this.Y + value.drawPos.Y * this.squish - this.diceSize * (1 + (j - 4) * 0.55), this.diceSize, this.diceSize);
+            } else break;
          }
 
          for (let j = 0; j < 4; j++) {
-            if (value.dice > j) this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], sheetHasImage ? this.imageSize * (value.playerNumber + 1) : 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 0.6, this.Y + value.drawPos.Y * this.squish - this.diceSize * (0.75 + j * 0.55), this.diceSize, this.diceSize);
-            //if(value.dice > j) this.ctx.drawImage(this.testImage, this.X + value.drawPos.X - this.diceSize * 0.6, this.Y + value.drawPos.Y * this.squish - this.diceSize * (0.75 + j*0.55), this.diceSize, this.diceSize);
+            if (value.dice > j) {
+               if (this.battleTransition) {
+                  if (
+                     (key == this.currentBattle.defender && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) > this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0))
+                     ||
+                     (key == this.currentBattle.attacker && this.currentBattle.attackerRolls.reduce((a, b) => a + b, 0) <= this.currentBattle.defenderRolls.reduce((a, b) => a + b, 0))
+                  ) {
+                     this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 0.6, this.Y + value.drawPos.Y * this.squish - this.diceSize * (0.75 + j * 0.55), this.diceSize, this.diceSize);
+                     continue;
+                  }
+               }
+               this.ctx.drawImage(this.diceSheet, this.imageSize * value.diceOrientations[j], sheetHasImage ? this.imageSize * (value.playerNumber + 1) : 0, this.imageSize, this.imageSize, this.X + value.drawPos.X - this.diceSize * 0.6, this.Y + value.drawPos.Y * this.squish - this.diceSize * (0.75 + j * 0.55), this.diceSize, this.diceSize);
+            }
          }
       }
    }
 
-   drawPixelEdge = (ctx, x1, y1, x2, y2, playerTurn) => {
-
-      let testPixelSize = Math.floor(this.canvasDims.width / 250);
+   drawPixelEdge = (ctx, x1, y1, x2, y2, pixelSize, playerTurn) => {
 
       let testVec = {
          x: (x2) - (x1),
@@ -780,15 +856,56 @@ export default class hexGridClass {
       }
       let testLen = Math.sqrt(testVec.x * testVec.x + testVec.y * testVec.y);
 
-      for (let i = 0; i < testLen; i += testPixelSize) {
+      for (let i = 0; i < testLen; i += pixelSize) {
          ctx.fillStyle = 'rgba(25,25,25,1.0)';
          if (playerTurn) ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-         ctx.fillRect(x1 + testVec.x * (i / testLen) - testPixelSize / 2, y1 + testVec.y * (i / testLen) - testPixelSize / 2, testPixelSize, testPixelSize);
+         ctx.fillRect(x1 + testVec.x * (i / testLen) - pixelSize / 2, y1 + testVec.y * (i / testLen) - pixelSize / 2, pixelSize, pixelSize);
 
          ctx.fillStyle = 'rgba(25,25,25,0.5)';
          if (playerTurn) ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-         ctx.fillRect(x1 + testVec.x * (i / testLen) - testPixelSize * 1.5 / 2, y1 + testVec.y * (i / testLen) - testPixelSize * 1.5 / 2, testPixelSize * 1.5, testPixelSize * 1.5);
+         ctx.fillRect(x1 + testVec.x * (i / testLen) - pixelSize * 1.5 / 2, y1 + testVec.y * (i / testLen) - pixelSize * 1.5 / 2, pixelSize * 1.5, pixelSize * 1.5);
       }
+   }
+
+   drawFightBox = () => {
+
+      let x = this.canvasDims.width / 2 - this.fightBoxSize / 2;
+      let y = this.canvasDims.height / 2 - this.fightBoxSize / 4;
+      let width = this.fightBoxSize;
+      let height = this.fightBoxSize / 3;
+
+      this.ctx.fillStyle = "lightGrey"
+      let radius = 20;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(x + radius, y);
+      this.ctx.lineTo(x + width - radius, y);
+      this.ctx.lineTo(x + width, y + radius);
+      this.ctx.lineTo(x + width, y + height - radius);
+      this.ctx.lineTo(x + width - radius, y + height);
+      this.ctx.lineTo(x + radius, y + height);
+      this.ctx.lineTo(x, y + height - radius);
+      this.ctx.lineTo(x, y + radius);
+      this.ctx.lineTo(x + radius, y);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+
+      this.drawPixelEdge(this.ctx, x, y + radius, x, y + height - radius, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x, y + height - radius, x + radius, y + height, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + radius, y + height, x + width - radius, y + height, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + width - radius, y + height, x + width, y + height - radius, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + width, y + height - radius, x + width, y + radius, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + width, y + radius, x + width - radius, y, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + width - radius, y, x + radius, y, Math.floor(this.canvasDims.width / 100))
+      this.drawPixelEdge(this.ctx, x + radius, y, x, y + radius, Math.floor(this.canvasDims.width / 100))
+
+      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.groupMap.get(this.currentBattle.attacker).playerNumber+1), this.imageSize, this.imageSize, x + width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
+      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.groupMap.get(this.currentBattle.defender).playerNumber+1), this.imageSize, this.imageSize, x + width - width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
+
+      this.ctx.fillStyle = 'black'
+      this.ctx.font = `bold ${this.canvas2Dims.width * 0.05}px Arial`;
+      this.ctx.fillText("Fight", x + width / 2, y + height / 2)
    }
 
    drawButton = (ctx, text, color, x, y, width, height) => {
@@ -809,14 +926,14 @@ export default class hexGridClass {
       ctx.fill();
 
 
-      this.drawPixelEdge(ctx, x, y + radius, x, y + height - radius)
-      this.drawPixelEdge(ctx, x, y + height - radius, x + radius, y + height)
-      this.drawPixelEdge(ctx, x + radius, y + height, x + width - radius, y + height)
-      this.drawPixelEdge(ctx, x + width - radius, y + height, x + width, y + height - radius)
-      this.drawPixelEdge(ctx, x + width, y + height - radius, x + width, y + radius)
-      this.drawPixelEdge(ctx, x + width, y + radius, x + width - radius, y)
-      this.drawPixelEdge(ctx, x + width - radius, y, x + radius, y)
-      this.drawPixelEdge(ctx, x + radius, y, x, y + radius)
+      this.drawPixelEdge(ctx, x, y + radius, x, y + height - radius, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x, y + height - radius, x + radius, y + height, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + radius, y + height, x + width - radius, y + height, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + width - radius, y + height, x + width, y + height - radius, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + width, y + height - radius, x + width, y + radius, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + width, y + radius, x + width - radius, y, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + width - radius, y, x + radius, y, Math.floor(this.canvasDims.width / 250))
+      this.drawPixelEdge(ctx, x + radius, y, x, y + radius, Math.floor(this.canvasDims.width / 250))
 
       ctx.fillStyle = 'black'
       ctx.fillText(text, x + width / 2, y + height / 2)
@@ -829,7 +946,7 @@ export default class hexGridClass {
       let width = this.buttonWidth;
       let height = this.buttonWidth / 3;
       let color = 'lightGrey'
-      if(this.currentBattle.defender != null) color = 'grey'
+      if (this.currentBattle.defender != null) color = 'grey'
 
       this.drawButton(this.ctx, "End Turn", color, x, y, width, height);
    }
@@ -861,14 +978,14 @@ export default class hexGridClass {
          this.ctx.fill();
 
 
-         this.drawPixelEdge(this.ctx, x, y + radius, x, y + height - radius, playerTurn)
-         this.drawPixelEdge(this.ctx, x, y + height - radius, x + radius, y + height, playerTurn)
-         this.drawPixelEdge(this.ctx, x + radius, y + height, x + width - radius, y + height, playerTurn)
-         this.drawPixelEdge(this.ctx, x + width - radius, y + height, x + width, y + height - radius, playerTurn)
-         this.drawPixelEdge(this.ctx, x + width, y + height - radius, x + width, y + radius, playerTurn)
-         this.drawPixelEdge(this.ctx, x + width, y + radius, x + width - radius, y, playerTurn)
-         this.drawPixelEdge(this.ctx, x + width - radius, y, x + radius, y, playerTurn)
-         this.drawPixelEdge(this.ctx, x + radius, y, x, y + radius, playerTurn)
+         this.drawPixelEdge(this.ctx, x, y + radius, x, y + height - radius, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x, y + height - radius, x + radius, y + height, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + radius, y + height, x + width - radius, y + height, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + width - radius, y + height, x + width, y + height - radius, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + width, y + height - radius, x + width, y + radius, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + width, y + radius, x + width - radius, y, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + width - radius, y, x + radius, y, Math.floor(this.canvasDims.width / 250), playerTurn)
+         this.drawPixelEdge(this.ctx, x + radius, y, x, y + radius, Math.floor(this.canvasDims.width / 250), playerTurn)
 
          this.drawDie(x + (width / 4) * 1.15, y + height / 2, 6, colorIndex)
          this.ctx.font = `${this.canvasDims.width * 0.03}px Arial`;
