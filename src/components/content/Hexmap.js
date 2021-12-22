@@ -73,64 +73,6 @@ export default class HexmapClass {
 
    }
 
-   getGroupEdges = (q, r) => {
-      let group = this.get(q, r).group;
-      let edges = [];
-
-      if (!this.has(q, r - 1) || this.get(q, r - 1).group != group) edges.push('TL');
-      if (!this.has(q + 1, r - 1) || this.get(q + 1, r - 1).group != group) edges.push('TR');
-      if (!this.has(q + 1, r) || this.get(q + 1, r).group != group) edges.push('R');
-      if (!this.has(q, r + 1) || this.get(q, r + 1).group != group) edges.push('BR');
-      if (!this.has(q - 1, r + 1) || this.get(q - 1, r + 1).group != group) edges.push('BL');
-      if (!this.has(q - 1, r) || this.get(q - 1, r).group != group) edges.push('L');
-
-      return edges;
-   }
-
-   getGroupTiles = (group) => {
-      let keys = this.keys();
-      let filteredKeys = [];
-
-      for(let i=0; i<keys.length; i++){
-         if(this.get(keys[i].Q, keys[i].R).group==group) filteredKeys.push(keys[i]);
-      }
-
-      return filteredKeys;
-   }
-
-   getGroupCenterTiles = (group, excludedTiles) => {
-      let keys = this.getGroupTiles(group);
-      let filteredKeys = [];
-
-      let numNeighbors = 6;
-
-      while(filteredKeys.length == 0){
-
-         for(let i=0; i<keys.length; i++){
-
-            let neighbors = this.neighborKeys(keys[i].Q, keys[i].R);
-   
-            if(neighbors.length < numNeighbors) continue;
-
-            if(excludedTiles.includes(this.join(keys[i].Q, keys[i].R))) continue;
-   
-            let innerNeighbors = 0;
-            for(let j=0; j<neighbors.length; j++){
-               if(this.get(neighbors[j].Q, neighbors[j].R).group==group) innerNeighbors++;
-            }
-            if(innerNeighbors < numNeighbors) continue;
-   
-            filteredKeys.push(keys[i]);
-         }
-
-         numNeighbors--;
-
-      }
-      
-
-       return filteredKeys;
-   }
-
    //returns keys of all neighbors adjacent to (q, r)
    neighborKeys = (q, r) => {
       let neighbors = [];
@@ -273,30 +215,6 @@ export default class HexmapClass {
 
       return arr[Math.floor(Math.random() * arr.length)]
 
-   }
-
-   randomGroupNeighbor = (group) => {
-      //get all tiles in group
-      let groupTiles = this.getGroupTiles(group);
-
-      //get all null neighbors of tiles
-      let groupNeighbors = new Set();
-
-      for(let i=0; i<groupTiles.length; i++){
-         let neighbors = this.neighborKeysNull(groupTiles[i].Q, groupTiles[i].R);
-
-
-         for(let j=0; j<neighbors.length; j++){
-            groupNeighbors.add(this.join(neighbors[j].Q, neighbors[j].R));
-         }
-      }
-
-
-      let arr = Array.from(groupNeighbors).map(key => this.split(key));
-
-
-      //return random null neighbor
-      return arr[Math.floor(Math.random() * arr.length)];
    }
 
    randomNullNeighborsNull = () => {

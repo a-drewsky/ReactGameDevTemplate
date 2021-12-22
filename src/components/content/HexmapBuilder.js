@@ -1,6 +1,6 @@
 import noise from "./perlin";
 
-export default class HexgridBuilderClass {
+export default class HexmapBuilderClass {
 
    constructor(hexMap, mapSize) {
 
@@ -39,43 +39,6 @@ export default class HexgridBuilderClass {
             })
          }
       }
-   }
-
-   createGroups = (numGroups) => {
-
-      let keyStrings = this.hexMap.keyStrings();
-
-      if (keyStrings.length < numGroups) return -1;
-      if(this.hexMap.size() < this.maxTilesRemoved) return -1;
-
-      for (let i = 0; i < numGroups; i++) {
-         let selected = this.hexMap.randomNullNeighborsNull();
-         
-         if (selected == null) return -1;
-
-         keyStrings.splice(keyStrings.indexOf(this.hexMap.join(selected.Q, selected.R)), 1);
-
-         this.hexMap.set(selected.Q, selected.R, {
-            group: i
-         })
-      }
-
-      while (keyStrings.length > 0) {
-         for (let i = 0; i < numGroups; i++) {
-            let selected = this.hexMap.randomGroupNeighbor(i);
-
-            if (selected == null) continue;
-
-            keyStrings.splice(keyStrings.indexOf(this.hexMap.join(selected.Q, selected.R)), 1);
-
-            this.hexMap.set(selected.Q, selected.R, {
-               group: i
-            })
-         }
-      }
-
-      return 1;
-
    }
 
    removeNoiseTiles = () => {

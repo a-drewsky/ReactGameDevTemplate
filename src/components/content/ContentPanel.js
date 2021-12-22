@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import HexGridClass from './HexGrid.js'
+import hexWarsGameClass from './HexWarsGame';
 import { Row, Form, Button } from 'react-bootstrap'
-
-import diceSheet from './diceSheet.png';
 
 const ContentPanel = () => {
 
@@ -16,24 +14,21 @@ const ContentPanel = () => {
    const [mapSize, setMapSize] = useState("large");
    const [mapGeneration, setMapGeneration] = useState("none");
 
-   const [hexGrid, setHexGrid] = useState(null);
+   const [hexWarsGame, setHexWarsGame] = useState(null);
 
    const updateMap = (e) => {
       e.preventDefault();
 
-      hexGrid.clear();
-      let hexGrid_ = new HexGridClass(ctx.current, ctx2.current, s(1), canvas.current.width, canvas.current.height, canvas2.current.width, canvas2.current.height, mapSize, numberOfPlayers, mapGeneration);
+      hexWarsGame.clear();
+      let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration);
 
-      setHexGrid(hexGrid_);
+      setHexWarsGame(newHexWarsGame);
 
-   }
-
-   const s = (num) => {
-      return (canvas.current.width / 200) * num;
    }
 
    useEffect(() => {
 
+      //try creating ctx object in hexWarsGameClass
       let context = canvas.current.getContext("2d");
       context.lineCap = 'round';
       context.lineWidth = canvas.current.width * 0.0045;
@@ -46,35 +41,32 @@ const ContentPanel = () => {
       ctx.current = context;
       ctx2.current = context2;
 
-      let hexGrid_ = new HexGridClass(ctx.current, ctx2.current, s(1), canvas.current.width, canvas.current.height, canvas2.current.width, canvas2.current.height, mapSize, numberOfPlayers, mapGeneration);
+      let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration);
 
-      setHexGrid(hexGrid_);
+      setHexWarsGame(newHexWarsGame);
 
    }, [canvas])
 
    useEffect(() => {
-      if (hexGrid == null) return;
-      if (hexGrid.loaded == false) {
-         hexGrid.createHexMap();
-         return
+      if (hexWarsGame == null) return;
+      if (hexWarsGame.loaded == false) {
+         hexWarsGame.createGame();
       }
 
-      hexGrid.drawHexGrid();
-
-   }, [hexGrid])
+   }, [hexWarsGame])
 
 
    const mouseDown = ({ nativeEvent }) => {
       const { offsetX, offsetY } = nativeEvent;
 
-      hexGrid.click(offsetX, offsetY);
+      hexWarsGame.click(offsetX, offsetY);
 
    }
 
    const mouseDown2 = ({ nativeEvent }) => {
       const { offsetX, offsetY } = nativeEvent;
 
-      hexGrid.click2(offsetX, offsetY);
+      hexWarsGame.click2(offsetX, offsetY);
 
    }
 

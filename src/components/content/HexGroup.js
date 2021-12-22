@@ -1,8 +1,8 @@
-export default class HexGroup {
+export default class HexGroupClass {
 
-   constructor(playerNumber, drawPos, drawHexPos){
+   constructor(drawPos, drawHexPos){
 
-      this.playerNumber = playerNumber;
+      this.playerNumber = null;
       this.drawPos = drawPos
       this.drawHexPos = drawHexPos;
       this.dice = 1;
@@ -19,6 +19,10 @@ export default class HexGroup {
          Math.floor(Math.random() * 6)
       ]
 
+   }
+
+   setPlayerNumber = (playerNumber) => {
+      this.playerNumber = playerNumber;
    }
 
 }

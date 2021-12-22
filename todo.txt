@@ -4,3 +4,31 @@
 -test screen sizes
 
 -refactor and make reusable componenets
+
+-move youtube player to aws
+
+-figure out ai and networking
+
+-start infastructure project
+
+
+HexWarsGame has hexGroupMap, hexGrid
+
+hexGroupMap has hexMap
+
+Hexmap has HexMapBuilder
+
+
+Hexagon class is not neccessary
+
+Hexgrid should draw hexagon with given colors
+
+HexGroupMap should draw group edges
+
+Hexgrid should not contain HexGroupMap
+
+HexWarsGame should create hexmap and pass it to componenets
+
+Decouple dice from hexgrid
+
+creat ui class

@@ -6,20 +6,11 @@ export default class HexagonClass {
       this.squish = squish;
    }
 
-   drawHexagon = (x, y, color, selection) => {
+   drawHexagon = (x, y, color) => {
       this.ctx.fillStyle = 'grey';
       this.ctx.strokeStyle = 'white';
       if(color) this.ctx.fillStyle = color;
       if(color) this.ctx.strokeStyle = color;
-
-      if(selection == 'attacker'){
-         this.ctx.fillStyle = 'snow';
-         this.ctx.strokeStyle = 'snow';
-      }
-      if(selection == 'defender'){
-         this.ctx.fillStyle = 'slateGrey';
-         this.ctx.strokeStyle = 'slateGrey';
-      }
 
       let sideLength = Math.PI / 3;
       this.ctx.beginPath();
