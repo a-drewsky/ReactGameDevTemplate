@@ -1,5 +1,3 @@
-import HexagonClass from './Hexagon.js'
-
 
 export default class hexGridClass {
 
@@ -34,15 +32,6 @@ export default class hexGridClass {
       this.HexagonClass = new HexagonClass(ctx, this.size, this.squish);
 
 
-      this.currentBattle = {
-         attacker: null,
-         defender: null,
-         attackerRolls: [],
-         defenderRolls: [],
-         attackerStoppedRolls: [],
-         defenderStoppedRolls: [],
-         interval: null
-      }
       this.RollBuffer = this.diceSize / 2;
 
       this.buttonWidth = this.canvasDims.width / 5.625;
@@ -59,9 +48,8 @@ export default class hexGridClass {
 
    }
 
-   
 
-   
+
 
    drawHexGrid = () => {
 
@@ -77,14 +65,14 @@ export default class hexGridClass {
 
          let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
          let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
-         
+
          // let group = this.groupMap.get(value.group);
 
          // let color = this.colorMap[group.playerNumber]
 
          // if (value.group == this.currentBattle.attacker) color = 'snow'
          // if (value.group == this.currentBattle.defender) color = 'slateGrey'
-         
+
          this.HexagonClass.drawHexagon(this.X + xOffset, this.Y + yOffset, value.color);
       }
 

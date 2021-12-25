@@ -2,19 +2,16 @@ import HexGroupClass from './HexGroup.js';
 
 export default class HexGroupMapBuilderClass {
 
-   constructor(hexMap, groupMap, VecQ, VecR) {
-      this.VecQ = VecQ;
-      this.VecR = VecR;
-
+   constructor(hexMap, hexGroupMap) {
       this.hexMap = hexMap;
-      this.groupMap = groupMap;
+      this.hexGroupMap = hexGroupMap;
    }
 
    getTakenGroupPositions = () => {
 
       let positions = [];
 
-      for (let [key, value] of this.groupMap.map()) {
+      for (let [key, value] of this.hexGroupMap.getMap()) {
          let groupHexPos = value.drawHexPos;
 
          positions.push(this.hexMap.join(groupHexPos.Q, groupHexPos.R));
@@ -36,7 +33,7 @@ export default class HexGroupMapBuilderClass {
 
    randomGroupNeighbor = (group) => {
       //get all tiles in group
-      let groupTiles = this.groupMap.getGroupTiles(group);
+      let groupTiles = this.hexGroupMap.getGroupTiles(group);
 
       //get all null neighbors of tiles
       let groupNeighbors = new Set();
@@ -56,6 +53,31 @@ export default class HexGroupMapBuilderClass {
 
       //return random null neighbor
       return arr[Math.floor(Math.random() * arr.length)];
+   }
+
+   assignGroups = () => {
+
+      let playerNumber = 0;
+
+
+      for (let [key, value] of this.hexGroupMap.getMap()) {
+
+         value.setPlayerNumber(playerNumber);
+
+         let groupTiles = this.hexGroupMap.getGroupTiles(key);
+
+         for(let i=0; i<groupTiles.length; i++){
+            this.hexMap.set(groupTiles[i].Q, groupTiles[i].R, {
+               group: key,
+               color: this.hexGroupMap.colorMap[playerNumber]
+            })
+         }
+
+         playerNumber++;
+         if(playerNumber == this.hexGroupMap.numPlayers) playerNumber = 0;
+
+      }
+
    }
 
    createGroups = (numGroups) => {
@@ -78,7 +100,7 @@ export default class HexGroupMapBuilderClass {
       let keyStrings = this.hexMap.keyStrings();
 
       if (keyStrings.length < numGroups) return -1;
-      if(this.hexMap.size() < this.maxTilesRemoved) return -1;
+      if(this.hexMap.mapSize() < this.maxTilesRemoved) return -1;
 
       for (let i = 0; i < numGroups; i++) {
          let selected = this.hexMap.randomNullNeighborsNull();
@@ -106,11 +128,11 @@ export default class HexGroupMapBuilderClass {
          }
       }
 
-      for (let i = 0; i < this.groupMap.numGroups; i++) {
+      for (let i = 0; i < this.hexGroupMap.numGroups; i++) {
 
          let takenPositions = this.getTakenGroupPositions();
 
-         let tiles = this.groupMap.getGroupCenterTiles(i, takenPositions);
+         let tiles = this.hexGroupMap.getGroupCenterTiles(i, takenPositions);
 
          let tilePositions = [];
          let tileHexPositions = [];
@@ -122,8 +144,8 @@ export default class HexGroupMapBuilderClass {
          //calculate group draw position
          for (let j = 0; j < tiles.length; j++) {
             let tilePos = {
-               X: this.VecQ.x * tiles[j].Q + this.VecR.x * tiles[j].R,
-               Y: this.VecQ.y * tiles[j].Q + this.VecR.y * tiles[j].R
+               X: this.hexMap.VecQ.x * tiles[j].Q + this.hexMap.VecR.x * tiles[j].R,
+               Y: this.hexMap.VecQ.y * tiles[j].Q + this.hexMap.VecR.y * tiles[j].R
             }
             let tileHexPos = {
                Q: tiles[j].Q,
@@ -140,13 +162,11 @@ export default class HexGroupMapBuilderClass {
 
          let groupDrawPos = closestPosition(averagePos, tilePositions);
          let groupDrawHexPos = tileHexPositions[tilePositions.indexOf(groupDrawPos)];
-         this.groupMap.set(i, new HexGroupClass(groupDrawPos, groupDrawHexPos));
+         this.hexGroupMap.set(i, new HexGroupClass(groupDrawPos, groupDrawHexPos));
 
       }
-      console.log(this.groupMap.map())
-      this.groupMap.groupMap = new Map([...this.groupMap.groupMap.entries()].sort((a, b) => a[1].drawPos.Y - b[1].drawPos.Y));
+      this.hexGroupMap.setMap(new Map([...this.hexGroupMap.entries()].sort((a, b) => a[1].drawPos.Y - b[1].drawPos.Y)));
 
-      console.log(this.groupMap.map())
       
 
       return 1;

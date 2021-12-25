@@ -1,14 +1,16 @@
-
+import HexagonClass from './Hexagon.js'
 
 export default class HexGroupMapClass {
 
-   constructor(hexMap, numGroups, numPlayers, VecQ, VecR){
-      this.VecQ = VecQ;
-      this.VecR = VecR;
+   constructor(ctx, hexMap, numGroups, numPlayers, colorMap){
+      
       this.numGroups = numGroups
       this.numPlayers = numPlayers
       this.groupMap = new Map();
       this.hexMap = hexMap;
+      this.colorMap = colorMap
+
+      this.HexagonClass = new HexagonClass(ctx, this.hexMap.size, this.hexMap.squish);
    }
 
    get = (index) => {
@@ -19,12 +21,60 @@ export default class HexGroupMapClass {
       this.groupMap.set(index, obj);
    }
 
-   map = () => {
+   getMap = () => {
       return this.groupMap;
+   }
+
+   setMap = (map) => {
+      this.groupMap = map;
    }
 
    entries = () => {
       return this.groupMap.entries();
+   }
+
+   drawGroupEdges = () => {
+      for (let [key, value] of this.hexMap.map()) {
+
+         let keyObj = this.hexMap.split(key);
+
+         let xOffset = this.hexMap.VecQ.x * keyObj.Q + this.hexMap.VecR.x * keyObj.R;
+         let yOffset = this.hexMap.VecQ.y * keyObj.Q * this.hexMap.squish + this.hexMap.VecR.y * keyObj.R * this.hexMap.squish;
+
+         let edges = [];
+         if (value.group != null) edges = this.getGroupEdges(keyObj.Q, keyObj.R);
+
+         this.HexagonClass.drawEdges(this.hexMap.X + xOffset, this.hexMap.Y + yOffset, edges, Math.floor(this.hexMap.size / 5.5), "pixel")
+      }
+
+      // for (let [key, value] of this.hexMap.map()) {
+
+      //    let keyObj = this.hexMap.split(key);
+
+      //    let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
+      //    let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
+
+      //    let edges = [];
+      //    if (value.group != null) edges = this.getGroupEdges(keyObj.Q, keyObj.R);
+
+      //    if (value.group == this.currentBattle.defender) this.HexagonClass.drawEdges(this.X + xOffset, this.Y + yOffset, edges, Math.floor(this.size / 5.5), "pixel", "#ff0000")
+
+      // }
+
+      // for (let [key, value] of this.hexMap.map()) {
+
+      //    let keyObj = this.hexMap.split(key);
+
+      //    let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
+      //    let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
+
+      //    let edges = [];
+      //    if (value.group != null) edges = this.getGroupEdges(keyObj.Q, keyObj.R);
+
+      //    if (value.group == this.currentBattle.attacker) this.HexagonClass.drawEdges(this.X + xOffset, this.Y + yOffset, edges, Math.floor(this.size / 5.5), "pixel", "#ffd900")
+
+      // }
+
    }
 
    getNumPlayerGroups = (playerNumber) => {

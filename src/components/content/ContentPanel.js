@@ -31,6 +31,9 @@ const ContentPanel = () => {
       //try creating ctx object in hexWarsGameClass
       let context = canvas.current.getContext("2d");
       context.lineCap = 'round';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle'
+      context.fillStyle = 'black'
       context.lineWidth = canvas.current.width * 0.0045;
 
       let context2 = canvas2.current.getContext("2d");
@@ -49,7 +52,7 @@ const ContentPanel = () => {
 
    useEffect(() => {
       if (hexWarsGame == null) return;
-      if (hexWarsGame.loaded == false) {
+      if (hexWarsGame.state.gameState == null) {
          hexWarsGame.createGame();
       }
 

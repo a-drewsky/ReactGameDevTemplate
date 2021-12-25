@@ -60,7 +60,7 @@ export default class HexmapBuilderClass {
 
    removeOuterTiles = () => {
       let numOuterTileGroups = this.outerMinGen + Math.floor(Math.random() * (this.outerMaxGen - this.outerMinGen));
-      let outerMaxTilesRemoved = Math.floor(this.hexMap.size() * this.outerMaxTilesRemovedPercent);
+      let outerMaxTilesRemoved = Math.floor(this.hexMap.mapSize() * this.outerMaxTilesRemovedPercent);
       for (let i = 0; i < numOuterTileGroups; i++) {
          let selected = this.hexMap.randomOuterTile();
 
@@ -91,7 +91,7 @@ export default class HexmapBuilderClass {
 
    removeInnerTiles = () => {
       let numInnerTileGroups = this.innerMinGen + Math.floor(Math.random() * (this.innerMaxGen - this.innerMinGen));
-      let totalMaxTilesRemoved = Math.floor(this.hexMap.size() * this.totalMaxTilesRemovedPercent);
+      let totalMaxTilesRemoved = Math.floor(this.hexMap.mapSize() * this.totalMaxTilesRemovedPercent);
       for (let i = 0; i < numInnerTileGroups; i++) {
 
          //Select a random inner tile

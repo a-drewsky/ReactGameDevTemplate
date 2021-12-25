@@ -12,23 +12,76 @@
 -start infastructure project
 
 
-HexWarsGame has hexGroupMap, hexGrid
-
-hexGroupMap has hexMap
-
-Hexmap has HexMapBuilder
-
 
 Hexagon class is not neccessary
+   Move into hexMap class and remove hexagon class
 
-Hexgrid should draw hexagon with given colors
+HexMap should be capitalized in HexMap and HexMapBuilder
 
-HexGroupMap should draw group edges
+Do after refactoring
 
-Hexgrid should not contain HexGroupMap
+Remove hexGrid class and create reusable componenets: hexMap, hexMapBuilder, buttonManager
+Group classes can be included with hexMap package
 
-HexWarsGame should create hexmap and pass it to componenets
+issue with image size on different map sizes
 
-Decouple dice from hexgrid
+create buttonManager inside of uiManager: when button is clicked create interval the displays it in a darker color and slightly smaller
 
-creat ui class
+BUG: after player has no more group, click stops working, still goes to player turn
+
+
+
+When game ends hide canvas and show 'You won this game' or 'You lost this game' instead. 
+   use gameComplete variable
+
+Create playerController and aiController classes
+   Add number of human players to game options
+   Add "human" to human players on scoreboard
+      This will be usernames in the youtube player
+
+
+ai alogrithm
+   make list of all posible moves (attacker and defender)
+   each move has 2 stats: probability and priority
+      probability is decided by the ratio of attacking dice to defending dice
+         equal amount of dice has 0.25 probability, double amount of dice has 0.75 probability
+      priority is highest when there is an equal amount of same and different groups neighboring the defender and lowest when there is only one or the other
+   sort moves by priority
+   test each move in order against its probability
+      when a move passes execute that move
+      stop all dice and await outcome
+      repeat the entire process
+   if all moves are tested without any passing then end turn
+
+
+
+Class Heirachry
+
+HexWarsGame
+<Controllers>
+   PlayerController
+   AIController
+</Controllers>
+<GameObjects>
+   Button
+   GameState
+   HexGroup
+   HexGroupMap
+   HexMap
+</GameObjects>
+<GameObjectBuilders>
+   HexGroupMapBuilder
+   HexMapBuilder
+</GameObjectBuilders>
+<Managers>
+   ButtonManager
+   DiceManager
+   GameStateManager
+   UIManager
+</Managers>
+<HelperFunctions>
+   perlin
+</HelperFunctions>
+<Sprites>
+   DiceSheet.png
+</Sprites>

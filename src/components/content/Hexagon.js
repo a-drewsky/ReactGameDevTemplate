@@ -25,10 +25,30 @@ export default class HexagonClass {
       this.ctx.stroke();
    }
 
-   drawEdges = (x, y, edges, testPixelSize, lineStyle, selection) => {
+   drawEdges = (x, y, edges, pixelSize, lineStyle, color) => {
 
       this.ctx.strokeStyle = 'black';
+      if(color) this.ctx.strokeStyle = color;
+
+      let mainColor = 'rgb(0, 0, 0, 1.0)';
+      let alphaColor = 'rgb(0, 0, 0, 0.5)';
+
+      if(color){
+         mainColor = color;
+         alphaColor = `${color}${Math.floor(0.5 * 255).toString(16).padStart(2, 0)}`
+      }
+
       let sideLength = Math.PI / 3;
+
+      let drawPixelEdge = (edgeX, edgeY, vec, length) => {
+         for(let i=0; i<length; i+=pixelSize){
+            this.ctx.fillStyle = mainColor;
+            this.ctx.fillRect(edgeX + vec.x*(i/length) - pixelSize/2, edgeY + vec.y*(i/length) - pixelSize/2, pixelSize, pixelSize);
+
+            this.ctx.fillStyle = alphaColor;
+            this.ctx.fillRect(edgeX + vec.x*(i/length) - pixelSize*1.5/2, edgeY + vec.y*(i/length) - pixelSize*1.5/2, pixelSize*1.5, pixelSize*1.5);
+         }
+      }
 
       if(edges.includes('TL')){
 
@@ -38,26 +58,16 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 4) * this.size, y + Math.cos(sideLength * 4) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 3) * this.size;
-            let testY = y + Math.cos(sideLength * 3) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 3) * this.size;
+            let edgeY = y + Math.cos(sideLength * 3) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 4) * this.size) - (x + Math.sin(sideLength * 3) * this.size),
                y: (y + Math.cos(sideLength * 4) * (this.size * this.squish)) - (y + Math.cos(sideLength * 3) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
-   
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength);
+            
          }
 
       }
@@ -70,26 +80,16 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 3) * this.size, y + Math.cos(sideLength * 3) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 2) * this.size;
-            let testY = y + Math.cos(sideLength * 2) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 2) * this.size;
+            let edgeY = y + Math.cos(sideLength * 2) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 3) * this.size) - (x + Math.sin(sideLength * 2) * this.size),
                y: (y + Math.cos(sideLength * 3) * (this.size * this.squish)) - (y + Math.cos(sideLength * 2) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
-   
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength);
+            
          }
 
       }
@@ -102,28 +102,17 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 2) * this.size, y + Math.cos(sideLength * 2) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 1) * this.size;
-            let testY = y + Math.cos(sideLength *1) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 1) * this.size;
+            let edgeY = y + Math.cos(sideLength *1) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 2) * this.size) - (x + Math.sin(sideLength * 1) * this.size),
                y: (y + Math.cos(sideLength * 2) * (this.size * this.squish)) - (y + Math.cos(sideLength *1) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength);
    
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
-   
-            this.ctx.fillRect(x + Math.sin(sideLength * 2) * this.size - testPixelSize/2, y + Math.cos(sideLength * 2) * (this.size * this.squish) - testPixelSize/2, testPixelSize, testPixelSize);
+            this.ctx.fillRect(x + Math.sin(sideLength * 2) * this.size - pixelSize/2, y + Math.cos(sideLength * 2) * (this.size * this.squish) - pixelSize/2, pixelSize, pixelSize);
          }
 
       }
@@ -136,26 +125,15 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 1) * this.size, y + Math.cos(sideLength * 1) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 1) * this.size;
-            let testY = y + Math.cos(sideLength * 1) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 1) * this.size;
+            let edgeY = y + Math.cos(sideLength * 1) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 6) * this.size) - (x + Math.sin(sideLength * 1) * this.size),
                y: (y + Math.cos(sideLength * 6) * (this.size * this.squish)) - (y + Math.cos(sideLength * 1) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
-   
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength)
          }
 
       }
@@ -168,26 +146,15 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 6) * this.size, y + Math.cos(sideLength * 6) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 6) * this.size;
-            let testY = y + Math.cos(sideLength * 6) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 6) * this.size;
+            let edgeY = y + Math.cos(sideLength * 6) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 5) * this.size) - (x + Math.sin(sideLength * 6) * this.size),
                y: (y + Math.cos(sideLength * 5) * (this.size * this.squish)) - (y + Math.cos(sideLength * 6) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
-   
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength)
          }
 
       }
@@ -200,28 +167,17 @@ export default class HexagonClass {
             this.ctx.lineTo(x + Math.sin(sideLength * 5) * this.size, y + Math.cos(sideLength * 5) * (this.size * this.squish));
             this.ctx.stroke();
          } else {
-            let testX = x + Math.sin(sideLength * 4) * this.size;
-            let testY = y + Math.cos(sideLength * 4) * (this.size * this.squish);
+            let edgeX = x + Math.sin(sideLength * 4) * this.size;
+            let edgeY = y + Math.cos(sideLength * 4) * (this.size * this.squish);
    
-            let testVec = {
+            let lineVec = {
                x: (x + Math.sin(sideLength * 5) * this.size) - (x + Math.sin(sideLength * 4) * this.size),
                y: (y + Math.cos(sideLength * 5) * (this.size * this.squish)) - (y + Math.cos(sideLength * 4) * (this.size * this.squish))
             }
-            let testLen = Math.sqrt(testVec.x*testVec.x+testVec.y*testVec.y);
+            let lineLength = Math.sqrt(lineVec.x*lineVec.x+lineVec.y*lineVec.y);
+            drawPixelEdge(edgeX, edgeY, lineVec, lineLength)
    
-            for(let i=0; i<testLen; i+=testPixelSize){
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,1.0)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 1.0)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 1.0)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize/2, testY + testVec.y*(i/testLen) - testPixelSize/2, testPixelSize, testPixelSize);
-
-               if(!selection) this.ctx.fillStyle = 'rgba(25,25,25,0.5)';
-               if(selection == "attacker") this.ctx.fillStyle = 'rgb(255, 215, 0, 0.5)';
-               if(selection == "defender") this.ctx.fillStyle = 'rgb(255, 0, 0, 0.5)';
-               this.ctx.fillRect(testX + testVec.x*(i/testLen) - testPixelSize*1.5/2, testY + testVec.y*(i/testLen) - testPixelSize*1.5/2, testPixelSize*1.5, testPixelSize*1.5);
-            }
-   
-            this.ctx.fillRect(x + Math.sin(sideLength * 5) * this.size - testPixelSize/2, y + Math.cos(sideLength * 5) * (this.size * this.squish) - testPixelSize/2, testPixelSize, testPixelSize);
+            this.ctx.fillRect(x + Math.sin(sideLength * 5) * this.size - pixelSize/2, y + Math.cos(sideLength * 5) * (this.size * this.squish) - pixelSize/2, pixelSize, pixelSize);
          }
 
       }
