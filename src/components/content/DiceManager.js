@@ -1,17 +1,51 @@
 export default class DiceManagerClass {
 
-   constructor(ctx, canvas, hexMap, hexGroupMap, uiManager, colorMap, diceSize, numPlayers){
+   constructor(ctx, ctx2, canvas, canvas2, hexMap, hexGroupMap, uiManager, stateManager, colorMap, diceSize, numPlayers, rollBuffer){
       this.ctx = ctx;
+      this.ctx2 = ctx2;
       this.canvas = canvas;
+      this.canvas2 = canvas2;
       this.hexMap = hexMap;
       this.hexGroupMap = hexGroupMap;
       this.uiManager = uiManager;
+      this.stateManager = stateManager;
       this.colorMap = colorMap;
       this.diceSize = diceSize;
-      this.numPlayers = numPlayers
+      this.numPlayers = numPlayers;
+      this.rollBuffer = rollBuffer;
 
       this.diceSheet = null;
       this.imageSize = null;
+   }
+
+   click = (x, y) => {
+      for (let [key, value] of this.hexGroupMap.getMap()) {
+
+         for (let j = 4; j < 8; j++) {
+            if (value.dice > j) {
+               if (x > this.hexMap.X + value.drawPos.X - this.hexMap.diceSize * 1.35
+                  && y > this.hexMap.Y + value.drawPos.Y * this.hexMap.squish - this.hexMap.diceSize * (1 + (j - 4) * 0.55)
+                  && x < this.hexMap.X + value.drawPos.X - this.hexMap.diceSize * 1.35 + this.hexMap.diceSize
+                  && y < this.hexMap.Y + value.drawPos.Y * this.hexMap.squish - this.hexMap.diceSize * (1 + (j - 4) * 0.55) + this.hexMap.diceSize) {
+                  if (this.hexGroupMap.get(key).dice < 2 || this.hexGroupMap.get(key).playerNumber != this.hexMap.playerTurn) return -1;
+                  return key;
+               }
+            }
+            else break;
+         }
+         for (let j = 0; j < 4; j++) {
+            if (value.dice > j) {
+               if (x > this.hexMap.X + value.drawPos.X - this.hexMap.diceSize * 0.6
+                  && y > this.hexMap.Y + value.drawPos.Y * this.hexMap.squish - this.hexMap.diceSize * (0.75 + j * 0.55)
+                  && x < this.hexMap.X + value.drawPos.X - this.hexMap.diceSize * 0.6 + this.hexMap.diceSize
+                  && y < this.hexMap.Y + value.drawPos.Y * this.hexMap.squish - this.hexMap.diceSize * (0.75 + j * 0.55) + this.hexMap.diceSize) {
+                  if (this.hexGroupMap.get(key).dice < 2 || this.hexGroupMap.get(key).playerNumber != this.hexMap.playerTurn) return -1;
+                  return key;
+               }
+            }
+         }
+      }
+      return null;
    }
    
    setDiceSheet = (diceSheet, imageSize) => {
@@ -29,12 +63,91 @@ export default class DiceManagerClass {
 
       this.uiManager.drawBox(x, y, width, height, radius, "lightGrey");
 
-      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.groupMap.get(this.currentBattle.attacker).playerNumber+1), this.imageSize, this.imageSize, x + width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
-      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.groupMap.get(this.currentBattle.defender).playerNumber+1), this.imageSize, this.imageSize, x + width - width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
+      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber+1), this.imageSize, this.imageSize, x + width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
+      this.ctx.drawImage(this.diceSheet, this.imageSize * 5, this.imageSize * (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber+1), this.imageSize, this.imageSize, x + width - width/6 - this.diceSize, y + height/2 - this.diceSize, this.diceSize * 2, this.diceSize * 2);
 
       this.ctx.fillStyle = 'black'
-      this.ctx.font = `bold ${this.canvas2Dims.width * 0.05}px Arial`;
+      this.ctx.font = `bold ${this.canvas2.width * 0.05}px Arial`;
       this.ctx.fillText("Fight", x + width / 2, y + height / 2)
+   }
+
+   drawBattle = () => {
+
+      if(this.stateManager.gameState.stateName != 'battle' && this.stateManager.gameState.stateName != 'endBattle') return;
+
+      this.drawFightBox();
+
+      //draw attacker roll total
+      let attackerRollTotal = 0;
+      for (let i = 0; i < this.stateManager.gameState.attackerRolls.length; i++) {
+         if (this.stateManager.gameState.attackerStoppedRolls[i] == false) continue;
+         attackerRollTotal += this.stateManager.gameState.attackerRolls[i] + 1;
+      }
+      this.ctx2.fillStyle = 'black'
+      if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) <= this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) this.ctx2.fillStyle = 'red'
+      this.ctx2.font = `${this.canvas2.width * 0.05}px Arial`;
+      this.ctx2.fillText(attackerRollTotal, this.canvas2.width / 2 - this.canvas2.width / 20, this.canvas2.height / 2)
+
+      //draw defender roll total
+      let defenderRollTotal = 0;
+      for (let i = 0; i < this.stateManager.gameState.defenderRolls.length; i++) {
+         if (this.stateManager.gameState.defenderStoppedRolls[i] == false) continue;
+         defenderRollTotal += this.stateManager.gameState.defenderRolls[i] + 1;
+      }
+      this.ctx2.fillStyle = 'black'
+      if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) > this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) this.ctx2.fillStyle = 'red'
+      this.ctx2.font = `${this.canvas2.width * 0.05}px Arial`;
+      this.ctx2.fillText(defenderRollTotal, this.canvas2.width / 2 + this.canvas2.width / 20, this.canvas2.height / 2)
+
+      //draw attacker dice
+      for (let i = 0; i < 4; i++) {
+
+         if (this.stateManager.gameState.attackerRolls.length <= i) break;
+
+         
+         if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) <= this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) {
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+         } else{
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+         } 
+      }
+      for (let i = 4; i < 8; i++) {
+
+         if (this.stateManager.gameState.attackerRolls.length <= i) break;
+
+         
+         if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) <= this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) {
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+      }
+
+
+      //draw defender dice
+      for (let i = 0; i < 4; i++) {
+         if (this.stateManager.gameState.defenderRolls.length <= i) break;
+
+         
+         if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) > this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) {
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) - this.diceSize * 2, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) - this.diceSize * 2, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+      }
+      for (let i = 4; i < 8; i++) {
+
+         if (this.stateManager.gameState.defenderRolls.length <= i) break;
+
+         
+         if (this.stateManager.gameState.stateName == 'endBattle' && this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0) > this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0)) {
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) - this.diceSize * 2, this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) - this.diceSize * 2, this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+      }
+
+      //use button manager
+      //draw stop all buttons
+      // this.ctx2.font = `${this.canvas2.width * 0.03}px Arial`;
+      // this.hexGrid.drawButton(this.hexGrid.ctx2, 'Stop All', 'lightGrey', this.hexGrid.rollBuffer, this.hexGrid.rollBuffer * 3 + this.hexGrid.diceSize * 4, this.hexGrid.buttonWidth, this.hexGrid.buttonWidth / 3)
+      // this.hexGrid.drawButton(this.hexGrid.ctx2, 'Stop All', 'lightGrey', this.hexGrid.canvas2.width - this.hexGrid.rollBuffer - this.hexGrid.buttonWidth, this.hexGrid.rollBuffer * 3 + this.hexGrid.diceSize * 4, this.hexGrid.buttonWidth, this.hexGrid.buttonWidth / 3)
+
+
    }
 
    drawDie = (x, y, number, colorIndex) => {
@@ -42,7 +155,7 @@ export default class DiceManagerClass {
       this.ctx.drawImage(this.diceSheet, this.imageSize * (number - 1), sheetHasImage ? this.imageSize * (colorIndex + 1) : 0, this.imageSize, this.imageSize, x - this.diceSize * 0.5, y - this.diceSize * 0.5, this.diceSize, this.diceSize);
    }
 
-   drawScoreboard = (playerTurn) => {
+   drawScoreboard = () => {
 
       let drawScore = (x, y, width, height, radius, colorIndex, score, playerTurn) => {
 
@@ -63,7 +176,7 @@ export default class DiceManagerClass {
       let scoreWidth = this.canvas.width / 11.25;
 
       for (let i = 0; i < this.numPlayers; i++) {
-         drawScore(scoreWidth * 0.0625 + scoreWidth * i * 1.125, 10, scoreWidth, scoreWidth / 2, 4, i, this.hexGroupMap.getNumPlayerGroups(i), playerTurn == i)
+         drawScore(scoreWidth * 0.0625 + scoreWidth * i * 1.125, 10, scoreWidth, scoreWidth / 2, 4, i, this.hexGroupMap.getNumPlayerGroups(i), this.stateManager.globalStates.currentPlayer == i)
       }
 
    }

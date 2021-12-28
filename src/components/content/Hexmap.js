@@ -84,6 +84,34 @@ export default class HexmapClass {
 
    }
 
+   roundToNearestHex = (hex) => {
+      let fracQ = hex.Q;
+      let fracR = hex.R;
+      let fracS = -1 * hex.Q - hex.R
+
+      let Q = Math.round(fracQ);
+      let R = Math.round(fracR);
+      let S = Math.round(fracS);
+
+      let diffQ = Math.abs(Q - fracQ);
+      let diffR = Math.abs(R - fracR);
+      let diffS = Math.abs(S - fracS);
+
+      if (diffQ > diffR && diffQ > diffS) {
+         Q = -1 * R - S
+      } else if (diffR > diffS) {
+         R = -1 * Q - S
+      } else {
+         S = -1 * Q - R
+      }
+
+      return {
+         Q: Q,
+         R: R
+      }
+
+   }
+
    //return all key strings
    keyStringsNullGroup = () => {
       let keyStrings = this.keyStrings();

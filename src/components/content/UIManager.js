@@ -73,10 +73,9 @@ export default class UIManagerClass {
    }
 
    drawButton = (x, y, width, height, text, color) => {
+      this.ctx.font = `${this.canvas.width * 0.03}px Arial`;
       this.ctx.fillStyle = color
       let radius = 4;
-
-      console.log( x, y, width, height)
 
       this.ctx.beginPath();
       this.ctx.moveTo(x + radius, y);

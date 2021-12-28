@@ -52,7 +52,7 @@ const ContentPanel = () => {
 
    useEffect(() => {
       if (hexWarsGame == null) return;
-      if (hexWarsGame.state.gameState == null) {
+      if (hexWarsGame.stateManager.gameState == null) {
          hexWarsGame.createGame();
       }
 

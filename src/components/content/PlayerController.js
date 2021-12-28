@@ -1,72 +1,89 @@
 export default class PlayerControllerClass {
 
-   constructor(hexMap, hexGroupMap, buttonManager, globalState) {
+   constructor(hexMap, hexGroupMap, buttonManager, diceManager, stateManager) {
       this.hexMap = hexMap;
       this.hexGroupMap = hexGroupMap;
       this.buttonManager = buttonManager;
+      this.diceManager = diceManager;
 
-      this.globalState = globalState;
+      this.stateManager = stateManager;
    }
 
    click = (x, y) => {
 
-      let roundToNearestHex = (hex) => {
-         let fracQ = hex.Q;
-         let fracR = hex.R;
-         let fracS = -1 * hex.Q - hex.R
-
-         let Q = Math.round(fracQ);
-         let R = Math.round(fracR);
-         let S = Math.round(fracS);
-
-         let diffQ = Math.abs(Q - fracQ);
-         let diffR = Math.abs(R - fracR);
-         let diffS = Math.abs(S - fracS);
-
-         if (diffQ > diffR && diffQ > diffS) {
-            Q = -1 * R - S
-         } else if (diffR > diffS) {
-            R = -1 * Q - S
-         } else {
-            S = -1 * Q - R
-         }
-
-         return {
-            Q: Q,
-            R: R
-         }
-
-      }
-
-      let adjacentGroups = (group1, group2) => {
-         let group1Tiles = this.hexGroupMap.getGroupTiles(group1);
-         let group2Tiles = this.hexGroupMap.getGroupTiles(group2);
-
-         for (let i = 0; i < group1Tiles.length; i++) {
-            let neighbors = this.hexGrid.hexMap.neighborKeys(group1Tiles[i].Q, group1Tiles[i].R);
-
-            for (let j = 0; j < neighbors.length; j++) {
-               let neighbor = neighbors[j];
-
-               for (let k = 0; k < group2Tiles.length; k++) {
-                  if (neighbor.Q == group2Tiles[k].Q && neighbor.R == group2Tiles[k].R) return true;
-               }
-            }
-         }
-         return false;
-      }
-
-      switch (this.globalState.gameState.stateName) {
+      switch (this.stateManager.gameState.stateName) {
          case 'playerTurn':
 
             //test buttons clicked
             let buttonClicked = this.buttonManager.click(x, y);
             if (buttonClicked != null) {
                if (buttonClicked == 'endTurnButton') {
-                  this.globalState.setEndTurn(this.globalState.gameState.player, this.hexGroupMap.getPlayerGroups(this.globalState.gameState.player).length);
+                  this.stateManager.setEndTurn(this.hexGroupMap.getPlayerGroups(this.stateManager.globalStates.currentPlayer).length);
                   return;
                }
             }
+
+
+            //test hexMap clicked
+            let hexClicked = {
+               Q: (Math.sqrt(3) / 3 * (x - this.hexMap.X) - 1 / 3 * ((y - this.hexMap.Y) * (1 / this.hexMap.squish))) / this.hexMap.size,
+               R: (y - this.hexMap.Y) * (1 / this.hexMap.squish) * (2 / 3) / this.hexMap.size
+            }
+            hexClicked = this.hexMap.roundToNearestHex(hexClicked);
+
+
+            if (this.stateManager.gameState.attacker == null) {
+
+               //test dice clicked
+               let groupDiceClicked = this.diceManager.click(x, y);
+               if (groupDiceClicked == -1) return;
+               if (groupDiceClicked != null) {
+                  this.hexGroupMap.setTiles('attacker', groupDiceClicked);
+                  this.stateManager.setGameState('attacker', groupDiceClicked);
+                  return;
+               }
+
+               //test hex clicked
+               if (!this.hexMap.has(hexClicked.Q, hexClicked.R) || this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).dice < 2 || this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.stateManager.globalStates.currentPlayer) return;
+
+               
+               this.hexGroupMap.setTiles('attacker', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+               this.stateManager.setGameState('attacker', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+               return;
+            }
+
+            if (this.stateManager.gameState.defender == null) {
+
+               //test dice clicked
+               let groupDiceClicked = this.diceManager.click(x, y);
+               if (groupDiceClicked == -1) return;
+               if (groupDiceClicked != null) {
+                  this.hexGroupMap.setTiles('defender', groupDiceClicked);
+                  this.stateManager.setBattle(this.stateManager.gameState.attacker, groupDiceClicked, this.hexGroupMap.get(this.stateManager.gameState.attacker).dice, this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).dice);
+                  return;
+               }
+
+               //test hex clicked
+               if (!this.hexMap.has(hexClicked.Q, hexClicked.R)) return;
+
+               if (this.stateManager.gameState.attacker == this.hexMap.get(hexClicked.Q, hexClicked.R).group) {
+                  this.hexGroupMap.setTiles('default', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+                  this.stateManager.setGameState('attacker', null);
+                  return;
+               }
+
+               if (this.hexGroupMap.adjacentGroups(this.stateManager.gameState.attacker, this.hexMap.get(hexClicked.Q, hexClicked.R).group) && this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.stateManager.globalStates.currentPlayer) {
+                  this.hexGroupMap.setTiles('defender', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+                  this.stateManager.setBattle(this.stateManager.gameState.attacker, this.hexMap.get(hexClicked.Q, hexClicked.R).group, this.hexGroupMap.get(this.stateManager.gameState.attacker).dice, this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).dice);
+                  return;
+               } else if (this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).dice >= 2 && this.hexGroupMap.get(this.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber == this.hexMap.playerTurn) {
+                  this.hexGroupMap.setTiles('attacker', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+                  this.stateManager.setGameState('attacker', this.hexMap.get(hexClicked.Q, hexClicked.R).group);
+               }
+               return;
+            }
+
+
 
             break;
          case 'endTurn':
@@ -79,156 +96,63 @@ export default class PlayerControllerClass {
             break;
       }
 
+   }
 
+   //need to implement
+   click2 = (x, y) => {
 
-
-      let hexClicked = {
-         Q: (Math.sqrt(3) / 3 * (x - this.hexGrid.X) - 1 / 3 * ((y - this.hexGrid.Y) * (1 / this.hexGrid.squish))) / this.hexGrid.size,
-         R: (y - this.hexGrid.Y) * (1 / this.hexGrid.squish) * (2 / 3) / this.hexGrid.size
-      }
-      hexClicked = roundToNearestHex(hexClicked);
-
-      if (this.hexGrid.endTurnTransitionTimer != null) return;
-
-      //test end turn button clicked
-      // let buttonX = this.hexGrid.buttonWidth * 0.0625
-      // let buttonY = 60
-      // let buttonWidth = this.hexGrid.buttonWidth;
-      // let buttonHeight = this.hexGrid.buttonWidth / 3;
-      // if (x > buttonX && x < buttonX + buttonWidth && y > buttonY && y < buttonY + buttonHeight) {
-      //    this.endTurn();
-      //    return;
-      // }
-
-      //test grid clicked
-      if (this.hexGrid.currentBattle.attacker == null) {
-
-         //test dice clicked
-         for (let [key, value] of this.hexGroupMap.getMap()) {
-
-            for (let j = 4; j < 8; j++) {
-               if (value.dice > j) {
-                  if (x > this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 1.35
-                     && y > this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (1 + (j - 4) * 0.55)
-                     && x < this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 1.35 + this.hexGrid.diceSize
-                     && y < this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (1 + (j - 4) * 0.55) + this.hexGrid.diceSize) {
-                     if (this.hexGroupMap.get(key).dice < 2 || this.hexGroupMap.get(key).playerNumber != this.hexGrid.playerTurn) return;
-                     this.hexGrid.currentBattle.attacker = key;
-                     this.hexGrid.drawHexGrid();
-                     return;
-                  }
-               }
-               else break;
-            }
-            for (let j = 0; j < 4; j++) {
-               if (value.dice > j) {
-                  if (x > this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 0.6
-                     && y > this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (0.75 + j * 0.55)
-                     && x < this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 0.6 + this.hexGrid.diceSize
-                     && y < this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (0.75 + j * 0.55) + this.hexGrid.diceSize) {
-                     if (this.hexGroupMap.get(key).dice < 2 || this.hexGroupMap.get(key).playerNumber != this.hexGrid.playerTurn) return;
-                     this.hexGrid.currentBattle.attacker = key;
-                     this.hexGrid.drawHexGrid();
-                     return;
-                  }
-               }
-            }
-         }
-
-         //test hex clicked
-         if (!this.hexGrid.hexMap.has(hexClicked.Q, hexClicked.R) || this.hexGroupMap.get(this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group).dice < 2 || this.hexGroupMap.get(this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.hexGrid.playerTurn) return;
-
-         this.hexGrid.currentBattle.attacker = this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group;
-
-         this.hexGrid.drawHexGrid();
-         return;
+      //check attacker stop all button
+      if (x > this.hexGrid.RollBuffer && y > this.hexGrid.RollBuffer * 3 + this.hexGrid.diceSize * 4 && x < this.hexGrid.RollBuffer + this.hexGrid.buttonWidth && y < this.hexGrid.RollBuffer * 3 + this.hexGrid.diceSize * 4 + this.hexGrid.buttonWidth / 3) {
+         for (let i = 0; i < this.hexGrid.currentBattle.attackerStoppedRolls.length; i++) this.hexGrid.currentBattle.attackerStoppedRolls[i] = true;
       }
 
-      if (this.hexGrid.currentBattle.defender == null) {
+      //check defender stop all button
+      if (x > this.hexGrid.canvas2Dims.width - this.hexGrid.RollBuffer - this.hexGrid.buttonWidth && y > this.hexGrid.RollBuffer * 3 + this.hexGrid.diceSize * 4 && x < this.hexGrid.canvas2Dims.width - this.hexGrid.RollBuffer - this.hexGrid.buttonWidth + this.hexGrid.buttonWidth && y < this.hexGrid.RollBuffer * 3 + this.hexGrid.diceSize * 4 + this.hexGrid.buttonWidth / 3) {
+         for (let i = 0; i < this.hexGrid.currentBattle.defenderStoppedRolls.length; i++) this.hexGrid.currentBattle.defenderStoppedRolls[i] = true;
+      }
 
-         //test dice clicked
-         for (let [key, value] of this.hexGroupMap.getMap()) {
+      //check attacker dice
+      for (let i = 0; i < 4; i++) {
 
-            for (let j = 4; j < 8; j++) {
-               if (value.dice > j) {
-                  if (x > this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 1.35
-                     && y > this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (1 + (j - 4) * 0.55)
-                     && x < this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 1.35 + this.hexGrid.diceSize
-                     && y < this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (1 + (j - 4) * 0.55) + this.hexGrid.diceSize) {
-
-                     if (this.hexGrid.currentBattle.attacker == key) {
-                        this.hexGrid.currentBattle.attacker = null;
-                        this.hexGrid.drawHexGrid();
-                        return;
-                     }
-
-                     if (adjacentGroups(this.hexGrid.currentBattle.attacker, key) && this.hexGroupMap.get(key).playerNumber != this.hexGrid.playerTurn) {
-                        this.hexGrid.currentBattle.defender = key;
-                        this.hexGrid.drawHexGrid();
-                        this.startBattle();
-                        return;
-                     } else if (this.hexGroupMap.get(key).dice >= 2 && this.hexGroupMap.get(key).playerNumber == this.hexGrid.playerTurn) {
-                        this.hexGrid.currentBattle.attacker = key;
-                     }
-
-                     this.hexGrid.drawHexGrid();
-                     return;
-                  }
-               }
-               else break;
-            }
-            for (let j = 0; j < 4; j++) {
-               if (value.dice > j) {
-                  if (x > this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 0.6
-                     && y > this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (0.75 + j * 0.55)
-                     && x < this.hexGrid.X + value.drawPos.X - this.hexGrid.diceSize * 0.6 + this.hexGrid.diceSize
-                     && y < this.hexGrid.Y + value.drawPos.Y * this.hexGrid.squish - this.hexGrid.diceSize * (0.75 + j * 0.55) + this.hexGrid.diceSize) {
-
-                     if (this.hexGrid.currentBattle.attacker == key) {
-                        this.hexGrid.currentBattle.attacker = null;
-                        this.hexGrid.drawHexGrid();
-                        return;
-                     }
-
-                     if (adjacentGroups(this.hexGrid.currentBattle.attacker, key) && this.hexGroupMap.get(key).playerNumber != this.hexGrid.playerTurn) {
-                        this.hexGrid.currentBattle.defender = key;
-                        this.hexGrid.drawHexGrid();
-                        this.startBattle();
-                        return;
-                     } else if (this.hexGroupMap.get(key).dice >= 2 && this.hexGroupMap.get(key).playerNumber == this.hexGrid.playerTurn) {
-                        this.hexGrid.currentBattle.attacker = key;
-                     }
-
-                     this.hexGrid.drawHexGrid();
-                     return;
-                  }
-               }
-            }
-         }
-
-         //test hex clicked
-         if (!this.hexGrid.hexMap.has(hexClicked.Q, hexClicked.R)) return;
-
-         if (this.hexGrid.currentBattle.attacker == this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group) {
-            this.hexGrid.currentBattle.attacker = null;
-            this.hexGrid.drawHexGrid();
+         if (y < this.hexGrid.RollBuffer || y > this.hexGrid.RollBuffer + this.hexGrid.diceSize * 2 || this.hexGrid.currentBattle.attackerRolls.length <= i) break;
+         if (this.hexGrid.currentBattle.attackerStoppedRolls[i] == true) continue;
+         if (x > this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * i && x < this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * i + this.hexGrid.diceSize * 2) {
+            this.hexGrid.currentBattle.attackerStoppedRolls[i] = true;
             return;
          }
 
-         if (adjacentGroups(this.hexGrid.currentBattle.attacker, this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group) && this.hexGroupMap.get(this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.hexGrid.playerTurn) {
-            this.hexGrid.currentBattle.defender = this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group;
-            this.hexGrid.drawHexGrid();
-            this.startBattle();
+      }
+      for (let i = 4; i < 8; i++) {
+         if (y < this.hexGrid.RollBuffer * 2 + this.hexGrid.diceSize * 2 || y > this.hexGrid.RollBuffer * 2 + this.hexGrid.diceSize * 2 + this.hexGrid.diceSize * 2 || this.hexGrid.currentBattle.attackerRolls.length <= i) break;
+         if (this.hexGrid.currentBattle.attackerStoppedRolls[i] == true) continue;
+         if (x > this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * (i - 4) && x < this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * (i - 4) + this.hexGrid.diceSize * 2) {
+            this.hexGrid.currentBattle.attackerStoppedRolls[i] = true;
             return;
-         } else if (this.hexGroupMap.get(this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group).dice >= 2 && this.hexGroupMap.get(this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group).playerNumber == this.hexGrid.playerTurn) {
-            this.hexGrid.currentBattle.attacker = this.hexGrid.hexMap.get(hexClicked.Q, hexClicked.R).group;
          }
 
-
-         this.hexGrid.drawHexGrid();
-         return;
       }
 
+      //check defender dice
+      for (let i = 0; i < 4; i++) {
+
+         if (y < this.hexGrid.RollBuffer || y > this.hexGrid.RollBuffer + this.hexGrid.diceSize * 2 || this.hexGrid.currentBattle.defenderRolls.length <= i) break;
+         if (this.hexGrid.currentBattle.defenderStoppedRolls[i] == true) continue;
+         if (x < this.hexGrid.canvas2Dims.width - (this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * i) && x > this.hexGrid.canvas2Dims.width - (this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * i + this.hexGrid.diceSize * 2)) {
+            this.hexGrid.currentBattle.defenderStoppedRolls[i] = true;
+            return;
+         }
+
+      }
+      for (let i = 4; i < 8; i++) {
+
+         if (y < this.hexGrid.RollBuffer * 2 + this.hexGrid.diceSize * 2 || y > this.hexGrid.RollBuffer * 2 + this.hexGrid.diceSize * 2 + this.hexGrid.diceSize * 2 || this.hexGrid.currentBattle.defenderRolls.length <= i) break;
+         if (this.hexGrid.currentBattle.defenderStoppedRolls[i] == true) continue;
+         if (x < this.hexGrid.canvas2Dims.width - (this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * (i - 4)) && x > this.hexGrid.canvas2Dims.width - (this.hexGrid.RollBuffer + (this.hexGrid.diceSize * 2 + this.hexGrid.RollBuffer) * (i - 4) + this.hexGrid.diceSize * 2)) {
+            this.hexGrid.currentBattle.defenderStoppedRolls[i] = true;
+            return;
+         }
+
+      }
    }
 
 }
