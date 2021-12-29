@@ -76,32 +76,40 @@ const ContentPanel = () => {
 
    return (
       <>
-         <Row className='py-2'>
-            <canvas
-               ref={canvas}
-               width={window.innerWidth / 3}
-               height={window.innerWidth / 3}
-               onMouseDown={mouseDown}
-               style={
-                  { imageRendering: 'crisp-edges' }
-               }
-               className="mx-auto border"
-            />
-         </Row>
+         {
+            !hexWarsGame || hexWarsGame.winCondition == null ?
+            <>
+               <Row className='py-2'>
+                  <canvas
+                     ref={canvas}
+                     width={window.innerWidth / 3}
+                     height={window.innerWidth / 3}
+                     onMouseDown={mouseDown}
+                     style={
+                        { imageRendering: 'crisp-edges' }
+                     }
+                     className="mx-auto border"
+                  />
+               </Row>
 
-         <Row className='py-2'>
-            <canvas
-               ref={canvas2}
-               width={window.innerWidth / 3}
-               height={window.innerWidth / 11}
-               onMouseDown={mouseDown2}
-               style={
-                  { imageRendering: 'crisp-edges' }
-               }
-               className="mx-auto border"
-            />
-         </Row>
-
+               <Row className='py-2'>
+                  <canvas
+                     ref={canvas2}
+                     width={window.innerWidth / 3}
+                     height={window.innerWidth / 11}
+                     onMouseDown={mouseDown2}
+                     style={
+                        { imageRendering: 'crisp-edges' }
+                     }
+                     className="mx-auto border"
+                  />
+               </Row>
+            </>
+            :
+            <>
+               <h1>Player {hexWarsGame.winCondition} Wins!</h1>
+            </>
+         }
          <Form className='mt-5 mb-5 border w-50 mx-auto' onSubmit={updateMap}>
 
             <Form.Group className='my-4 d-flex justify-content-center'>

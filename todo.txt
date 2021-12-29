@@ -3,7 +3,7 @@
 
 -test screen sizes
 
--refactor and make reusable componenets
+-make reusable componenets
 
 -move youtube player to aws
 
@@ -16,29 +16,17 @@
 Hexagon class is not neccessary
    Move into hexMap class and remove hexagon class
 
-HexMap should be capitalized in HexMap and HexMapBuilder
-
-Do after refactoring
-
-Remove hexGrid class and create reusable componenets: hexMap, hexMapBuilder, buttonManager
-Group classes can be included with hexMap package
-
 issue with image size on different map sizes
 
-create buttonManager inside of uiManager: when button is clicked create interval the displays it in a darker color and slightly smaller
 
-BUG: after player has no more group, click stops working, still goes to player turn
+Test WinCondition
+   When game ends hide canvas and show 'You won this game' or 'You lost this game' instead. 
 
-
-
-When game ends hide canvas and show 'You won this game' or 'You lost this game' instead. 
-   use gameComplete variable
-
-Create playerController and aiController classes
+Create aiController classes
    Add number of human players to game options
+   Instead of showing player # won at the end show You won or You lost
    Add "human" to human players on scoreboard
       This will be usernames in the youtube player
-
 
 ai alogrithm
    make list of all posible moves (attacker and defender)

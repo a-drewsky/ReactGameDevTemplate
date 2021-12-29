@@ -4,7 +4,7 @@ import HexGroupMapClass from './HexGroupMap.js';
 import diceSheet from './diceSheet.png'
 import UIManagerClass from './UIManager.js';
 import HexGroupMapBuilderClass from './HexGroupMapBuilder.js';
-import DiceManagerClass from './DiceManager.js';
+import DiceMapClass from './DiceMap.js';
 import StateManagerClass from './StateManager.js';
 import PlayerControllerClass from './PlayerController.js';
 import ButtonManagerClass from './ButtonManager.js';
@@ -37,17 +37,21 @@ export default class hexWarsGameClass {
       this.numPlayers = numPlayers;
       this.colorMap = ['#dc143c', '#6495ed', '#90ee90', '#9370db', '#ff7f50', '#da70d6', '#40e0d0', '#fff44f', '#228b22', '#2A52BE']
 
-      this.VecQ = { x: Math.sqrt(3) * this.size, y: 0 }
-      this.VecR = { x: Math.sqrt(3) / 2 * this.size, y: 3 / 2 * this.size }
-
+      this.winCondition = null;
 
       this.intervals = {
          endTurnInterval: this.endTurnInterval,
-         battleInterval: this.battleInterval
+         battleInterval: this.battleInterval,
+         endBattleInterval: this.endBattleInterval
       }
 
-      this.stateManager = new StateManagerClass(this.drawGameObjects, this.intervals);
+      this.uiManager = new UIManagerClass(this.ctx, this.canvas);
+      this.uiManager2 = new UIManagerClass(this.ctx2, this.canvas2);
 
+      this.buttonManager = new ButtonManagerClass(this.uiManager, this.drawGameObjects);
+      this.buttonManager2 = new ButtonManagerClass(this.uiManager2, this.drawGameObjects);
+
+      this.stateManager = new StateManagerClass(this.drawGameObjects, this.intervals, this.buttonManager, this.buttonManager2);
 
       this.hexMap = new HexmapClass(
          this.ctx,
@@ -61,14 +65,10 @@ export default class hexWarsGameClass {
       this.hexGroupMap = new HexGroupMapClass(this.ctx, this.hexMap, this.stateManager, this.numGroups, this.numPlayers, this.colorMap);
       this.hexGroupMapBuilder = new HexGroupMapBuilderClass(this.hexMap, this.hexGroupMap);
 
-      this.uiManager = new UIManagerClass(this.ctx, this.canvas);
-      this.uiManager2 = new UIManagerClass(this.ctx2, this.canvas2);
 
-      this.diceManager = new DiceManagerClass(this.ctx, this.ctx2, this.canvas, this.canvas2, this.hexMap, this.hexGroupMap, this.uiManager, this.stateManager, this.colorMap, this.diceSize, this.numPlayers, this.rollBuffer);
-      this.buttonManager = new ButtonManagerClass(this.uiManager, this.drawGameObjects);
-      this.buttonManager2 = new ButtonManagerClass(this.uiManager, this.drawGameObjects);
+      this.diceMap = new DiceMapClass(this.ctx, this.ctx2, this.canvas, this.canvas2, this.hexMap, this.hexGroupMap, this.uiManager, this.stateManager, this.colorMap, this.diceSize, this.numPlayers, this.rollBuffer);
 
-      this.playerController = new PlayerControllerClass(this.hexMap, this.hexGroupMap, this.buttonManager, this.diceManager, this.stateManager);
+      this.playerController = new PlayerControllerClass(this.hexMap, this.hexGroupMap, this.buttonManager, this.buttonManager2, this.diceMap, this.stateManager);
 
 
    }
@@ -116,13 +116,13 @@ export default class hexWarsGameClass {
       }
 
       this.hexGroupMapBuilder.assignGroups();
-      this.diceManager.assignDice();
+      this.diceMap.assignDice();
 
       this.uiManager.drawLoading();
 
       this.diceSheet.onload = () => {
          this.imageSize = this.diceSheet.width / 6;
-         this.diceManager.setDiceSheet(this.diceSheet, this.imageSize);
+         this.diceMap.setDiceSheet(this.diceSheet, this.imageSize);
          this.stateManager.setPlayerTurn(Math.floor(Math.random() * this.numPlayers));
       }
       this.diceSheet.src = diceSheet;
@@ -130,24 +130,45 @@ export default class hexWarsGameClass {
    }
 
    drawGameObjects = () => {
+
+      //clear the canvas
       this.uiManager.clearCanvas();
       this.uiManager2.clearCanvas();
+
+      //global draw methods
       this.hexMap.drawHexMap();
       this.hexGroupMap.drawGroupEdges();
-      this.diceManager.drawDice();
+      this.diceMap.drawDice();
+      this.diceMap.drawScoreboard();
 
-      this.diceManager.drawScoreboard();
-      this.diceManager.drawBattle();
+      //specific draw methods
+      switch (this.stateManager.gameState.stateName) {
+         case 'playerTurn':
+            break;
+         case 'endTurn':
+            break;
+         case 'battle':
+            this.diceMap.drawBattle();
+            break;
+         case 'endBattle':
+            this.diceMap.drawEndBattle();
+            break;
+      }
 
+      //draw buttons
       this.buttonManager.drawButtons();
+      this.buttonManager2.drawButtons();
    }
 
 
    endTurnInterval = () => {
-
       let endTurn = () => {
          let newPlayer = this.stateManager.globalStates.currentPlayer + 1;
          if (newPlayer == this.hexGroupMap.numPlayers) newPlayer = 0;
+         while (this.hexGroupMap.getPlayerGroups(newPlayer).length == 0) {
+            newPlayer++;
+            if (newPlayer == this.hexGroupMap.numPlayers) newPlayer = 0;
+         }
 
          this.stateManager.setPlayerTurn(newPlayer)
       }
@@ -176,17 +197,46 @@ export default class hexWarsGameClass {
    }
 
    endBattleInterval = () => {
-      if (this.hexGrid.battleTransitionTimer >= this.hexGrid.battleTransitionTime) {
-         this.endBattle();
-         return;
+
+      //attacker roll total
+      let attackerRollTotal = this.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0);
+
+      //defender roll total
+      let defenderRollTotal = this.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0);
+
+      //result
+      if (attackerRollTotal > defenderRollTotal) {
+         this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber = this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber;
+         this.hexGroupMap.get(this.stateManager.gameState.defender).dice = this.hexGroupMap.get(this.stateManager.gameState.attacker).dice - 1;
+         this.hexGroupMap.get(this.stateManager.gameState.attacker).dice = 1;
+      } else {
+         this.hexGroupMap.get(this.stateManager.gameState.attacker).dice = 1;
       }
-      this.hexGrid.battleTransitionTimer += 0.1;
+
+      let lastStanding = null;
+
+      for(let i=0; i<this.numPlayers; i++){
+         if(this.hexGroupMap.getPlayerGroups(i).length > 0){
+            if(lastStanding != null){
+               lastStanding = null;
+               break;
+            }
+            lastStanding = i;
+         }
+      }
+
+      if(lastStanding != null){
+         this.winCondition = lastStanding;
+      }
+
+      this.hexGroupMap.setTiles('default', this.stateManager.gameState.attacker);
+      this.hexGroupMap.setTiles('default', this.stateManager.gameState.defender);
+      this.stateManager.setPlayerTurn(this.stateManager.globalStates.currentPlayer);
+      return;
    }
 
-   //need to implement
    battleInterval = () => {
 
-      //this.hexGrid.ctx2.clearRect(0, 0, this.hexGrid.canvas2Dims.width, this.hexGrid.canvas2Dims.height);
 
       //check if battle is done
       let battleDone = true;
@@ -204,18 +254,14 @@ export default class hexWarsGameClass {
       }
 
       if (battleDone) {
-         // this.hexGrid.battleTransition = true;
-         // this.hexGrid.battleTransitionTimer = 0;
-         // this.hexGrid.drawHexagons();
-         // this.hexGrid.drawGroupEdges();
-         // this.hexGrid.drawDice();
 
-         this.stateManager.setEndBattle();
+         this.stateManager.setEndBattle(this.stateManager.gameState.attacker, this.stateManager.gameState.defender, this.stateManager.gameState.attackerRolls, this.stateManager.gameState.defenderRolls);
+         return;
       }
-
-      let attackerRolls = this.stateManager.gameState.attackerRolls;
 
       //roll attacker dice
+      let attackerRolls = this.stateManager.gameState.attackerRolls;
+
       for (let i = 0; i < 4; i++) {
 
          if (this.stateManager.gameState.attackerRolls.length <= i) break;
@@ -243,10 +289,10 @@ export default class hexWarsGameClass {
             attackerRolls[i] = newRoll;
          }
       }
-
-      let defenderRolls = this.stateManager.gameState.defenderRolls;
 
       //roll defender dice
+      let defenderRolls = this.stateManager.gameState.defenderRolls;
+
       for (let i = 0; i < 4; i++) {
          if (this.stateManager.gameState.defenderRolls.length <= i) break;
 
@@ -275,8 +321,8 @@ export default class hexWarsGameClass {
          }
       }
 
-      
-      this.stateManager.setGameStates([['attackerRolls', attackerRolls],['defenderRolls', defenderRolls]]);
+
+      this.stateManager.setGameStates([['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls]]);
 
    }
 

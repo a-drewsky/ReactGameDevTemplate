@@ -55,7 +55,6 @@ export default class HexGroupMapClass {
                })
             }
             break;
-
          default:
             for(let i=0; i<tiles.length; i++){
                this.hexMap.set(tiles[i].Q, tiles[i].R, {
@@ -88,6 +87,8 @@ export default class HexGroupMapClass {
    }
 
    drawGroupEdges = () => {
+
+      //draw all edges
       for (let [key, value] of this.hexMap.map()) {
 
          let keyObj = this.hexMap.split(key);
@@ -101,6 +102,7 @@ export default class HexGroupMapClass {
          this.HexagonClass.drawEdges(this.hexMap.X + xOffset, this.hexMap.Y + yOffset, edges, Math.floor(this.hexMap.size / 5.5), "pixel")
       }
 
+      //draw defender edges
       for (let [key, value] of this.hexMap.map()) {
 
          let keyObj = this.hexMap.split(key);
@@ -111,10 +113,13 @@ export default class HexGroupMapClass {
          let edges = [];
          if (value.group != null) edges = this.getGroupEdges(keyObj.Q, keyObj.R);
 
+         //console.log(this.stateManager.gameState.stateName, this.stateManager.gameState.defender)
+
          if (value.group == this.stateManager.gameState.defender) this.HexagonClass.drawEdges(this.hexMap.X + xOffset, this.hexMap.Y + yOffset, edges, Math.floor(this.hexMap.size / 5.5), "pixel", "#ff0000")
 
       }
 
+      //draw attacker edges
       for (let [key, value] of this.hexMap.map()) {
 
          let keyObj = this.hexMap.split(key);
@@ -129,10 +134,6 @@ export default class HexGroupMapClass {
 
       }
 
-   }
-
-   getNumPlayerGroups = (playerNumber) => {
-      return [...this.groupMap.entries()].filter(group => group[1].playerNumber == playerNumber).length;
    }
 
    getPlayerGroups = (playerNumber) => {

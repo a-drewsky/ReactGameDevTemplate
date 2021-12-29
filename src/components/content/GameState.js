@@ -2,7 +2,7 @@ export default class GameStateClass {
 
    constructor(stateName, attributes, interval, intervalFrequency){
       this.stateName = stateName;
-      this.attributes = attributes;
+      for(let i in attributes) this[i]=attributes[i];
       this.interval = interval;
       this.intervalFrequency = intervalFrequency;
    }

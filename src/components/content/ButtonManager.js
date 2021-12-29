@@ -37,12 +37,11 @@ export default class ButtonManagerClass {
 
    click = (x, y) => {
       for (let [key, value] of this.buttonMap) {
-         if (value.click(x, y)) {
+         if (value.state=='active' && value.click(x, y)) {
 
             value.setState(this.buttonStates.clicked);
 
             let clickTimer = setInterval(() => {
-               console.log("clickTimer")
                value.setState(this.buttonStates.active);
                this.drawGameObjects();
                clearInterval(clickTimer);

@@ -2,9 +2,12 @@ import GameStateClass from "./GameState";
 
 export default class StateManagerClass {
 
-   constructor(drawGameObjects, intervals){
+   constructor(drawGameObjects, intervals, buttonManager, buttonManager2){
 
       this.drawGameObjects = drawGameObjects;
+      this.buttonManager = buttonManager;
+      this.buttonManager2 = buttonManager2;
+
       this.gameState = null;
 
       this.interval = null;
@@ -44,11 +47,12 @@ export default class StateManagerClass {
          endBattle: new GameStateClass(
             'endBattle',
             {
-               battleTransitionTime: 0.5,
-               battleTransitionTimer: null,
-               battleTransition: false,
+               attacker: null,
+               defender: null,
+               attackerRolls: [],
+               defenderRolls: [],
             },
-            intervals.endBattleInterval, 10
+            intervals.endBattleInterval, 500
          )
       }
    }
@@ -70,18 +74,27 @@ export default class StateManagerClass {
    }
 
    setPlayerTurn = (player) => {
+      
       clearInterval(this.interval);
+
       this.gameState = this.gameStates.playerTurn;
       this.globalStates.currentPlayer = player;
+
+      this.setGameState('attacker', null);
+
+      this.buttonManager.setActive("endTurnButton");
 
       this.drawGameObjects();
    }
 
    setEndTurn = (endTurnTransitionTime) => {
+      
       clearInterval(this.interval);
 
       this.gameState = this.gameStates.endTurn;
       this.setGameStates([['endTurnTransitionTime', endTurnTransitionTime], ['endTurnTransitionTimer', 0]])
+
+      this.buttonManager.setInactive("endTurnButton");
 
       this.setGameStateInterval();
       this.drawGameObjects();
@@ -109,43 +122,27 @@ export default class StateManagerClass {
 
       this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls], ['attackerStoppedRolls', attackerStoppedRolls], ['defenderStoppedRolls', defenderStoppedRolls]]);
 
+      this.buttonManager.setInactive("endTurnButton");
+      this.buttonManager2.setActive("attackerStopAll");
+      this.buttonManager2.setActive("defenderStopAll");
+
       this.setGameStateInterval();
       this.drawGameObjects();
 
    }
 
-   //need to implement
-   setEndBattle = () => {
+   setEndBattle = (attacker, defender, attackerRolls, defenderRolls) => {
+
       clearInterval(this.interval)
+      this.gameState = this.gameStates.endBattle;
 
-      this.hexGrid.battleTransitionTimer = null;
-      this.hexGrid.battleTransition = false;
+      this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls]])
 
-      let attackerRollTotal = this.hexGrid.currentBattle.attackerRolls.reduce((a, b) => a + b, 0);
+      this.buttonManager2.setDisabled("attackerStopAll");
+      this.buttonManager2.setDisabled("defenderStopAll");
 
-      //defender roll total
-      let defenderRollTotal = this.hexGrid.currentBattle.defenderRolls.reduce((a, b) => a + b, 0);
-
-      //result
-      if (attackerRollTotal > defenderRollTotal) {
-         this.hexGroupMap.get(this.hexGrid.currentBattle.defender).playerNumber = this.hexGroupMap.get(this.hexGrid.currentBattle.attacker).playerNumber;
-         this.hexGroupMap.get(this.hexGrid.currentBattle.defender).dice = this.hexGroupMap.get(this.hexGrid.currentBattle.attacker).dice - 1;
-         this.hexGroupMap.get(this.hexGrid.currentBattle.attacker).dice = 1;
-      } else {
-         this.hexGroupMap.get(this.hexGrid.currentBattle.attacker).dice = 1;
-      }
-
-      this.hexGrid.currentBattle = {
-         attacker: null,
-         defender: null,
-         attackerRolls: [],
-         defenderRolls: [],
-         attackerStoppedRolls: [],
-         defenderStoppedRolls: [],
-         interval: null
-      }
-
-      this.hexGrid.drawHexGrid();
+      this.setGameStateInterval();
+      this.drawGameObjects();
    }
    
 
