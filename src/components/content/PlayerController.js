@@ -38,7 +38,7 @@ export default class PlayerControllerClass {
                //test dice clicked
                let groupDiceClicked = this.diceMap.click(x, y);
                if (groupDiceClicked == -1) return;
-               if (groupDiceClicked != null) {
+               if (groupDiceClicked != null && this.hexGroupMap.get(groupDiceClicked).playerNumber == this.stateManager.globalStates.currentPlayer) {
                   this.hexGroupMap.setTiles('attacker', groupDiceClicked);
                   this.stateManager.setGameState('attacker', groupDiceClicked);
                   return;

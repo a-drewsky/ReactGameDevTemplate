@@ -1,26 +1,27 @@
 
--dice size and position bug on different map sizes
+Issues:
+   Dice spinning faster and not in correct position on smaller map sizes
+   Attacker group color not changing back sometimes
+   Nothing happened when game finished
 
--test screen sizes
-
--make reusable componenets
-
--move youtube player to aws
-
--figure out ai and networking
-
--start infastructure project
+Look over everything. Comment all functionality. Remove any console logs.
+   Remove Button Manager from StateManager
+   Organize top level variables
 
 
 
-Hexagon class is not neccessary
-   Move into hexMap class and remove hexagon class
+Additional refactoring
+   Split dice map into HexGroupDiceMap, DiceBattle and Scoreboard.
+   HexGroupDiceMap extends HexGroupMap extends HexMap.
+   All game objects should have one draw function called draw().
+   Get rid of HexGroup and GameState classes. Implement as objects.
+   Create UI utilities class and create Views instead of UIManager
+   GameObjects and Views should not have more than one canvas
+   Views are just a draw function with attributes
+   All GameObjectBuilders should take in properties and only have a public build() function. All other functions should be inner functions and not publics
+      In addition check all objects for functions that should be private.
 
-issue with image size on different map sizes
 
-
-Test WinCondition
-   When game ends hide canvas and show 'You won this game' or 'You lost this game' instead. 
 
 Create aiController classes
    Add number of human players to game options
@@ -46,30 +47,42 @@ ai alogrithm
 Class Heirachry
 
 HexWarsGame
+GameState
+StateManager
 <Controllers>
    PlayerController
    AIController
 </Controllers>
 <GameObjects>
-   Button
-   GameState
-   HexGroup
-   HexGroupMap
-   HexMap
+   DiceBattle
+   HexGroupDiceMap
+      HexGroupMap
+         HexMap
+   <UIGameObjects>
+      Button
+   </UIGameObjects>
 </GameObjects>
 <GameObjectBuilders>
-   HexGroupMapBuilder
    HexMapBuilder
+   HexGroupMapBuilder
 </GameObjectBuilders>
-<Managers>
-   ButtonManager
-   DiceManager
-   GameStateManager
-   UIManager
-</Managers>
-<HelperFunctions>
+<ViewObjects>
+   LoadingView
+   DiceBattleView (Has buttonView for stop all buttons)
+   HexGroupDiceMapView (Has a ButtonView for end turn button)
+      HexGroupMapView
+         HexMapView
+            HexagonView
+   ScoreboardView
+   <UIViewObjects>
+      ButtonView
+   </UIViewObjects>
+</ViewObjects>
+<Utilities>
    perlin
-</HelperFunctions>
-<Sprites>
+   collision (use pointRect collision for button and image clicks)
+   pixelUI
+</Utilities>
+<Images>
    DiceSheet.png
-</Sprites>
+</Images>

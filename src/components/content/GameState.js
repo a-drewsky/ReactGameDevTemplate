@@ -7,8 +7,4 @@ export default class GameStateClass {
       this.intervalFrequency = intervalFrequency;
    }
 
-   setAttributes = (attributes) => {
-      this.attributes = attributes;
-   }
-
 }

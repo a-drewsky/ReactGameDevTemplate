@@ -42,7 +42,7 @@ export default class StateManagerClass {
                attackerStoppedRolls: [],
                defenderStoppedRolls: []
             },
-            intervals.battleInterval, 10
+            intervals.battleInterval, 50
          ),
          endBattle: new GameStateClass(
             'endBattle',

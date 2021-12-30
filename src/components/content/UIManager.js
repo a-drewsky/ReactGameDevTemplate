@@ -7,6 +7,7 @@ export default class UIManagerClass {
       this.imageSize = null;
    }
 
+   //move to drawGameObjects in HexWarsGame
    clearCanvas = () => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
    }

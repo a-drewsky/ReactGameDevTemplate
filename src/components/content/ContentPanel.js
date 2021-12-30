@@ -16,11 +16,15 @@ const ContentPanel = () => {
 
    const [hexWarsGame, setHexWarsGame] = useState(null);
 
+   const [winCondition, setWinCondition] = useState(null);
+
    const updateMap = (e) => {
       e.preventDefault();
 
+      setWinCondition(null)
+
       hexWarsGame.clear();
-      let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration);
+      let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration, setWinCondition);
 
       setHexWarsGame(newHexWarsGame);
 
@@ -77,8 +81,13 @@ const ContentPanel = () => {
    return (
       <>
          {
-            !hexWarsGame || hexWarsGame.winCondition == null ?
+            (winCondition != null)
+            &&
             <>
+               <h1>Player {winCondition} Wins!</h1>
+            </>
+         }
+            <div className={winCondition != null && 'd-none'}>
                <Row className='py-2'>
                   <canvas
                      ref={canvas}
@@ -104,12 +113,7 @@ const ContentPanel = () => {
                      className="mx-auto border"
                   />
                </Row>
-            </>
-            :
-            <>
-               <h1>Player {hexWarsGame.winCondition} Wins!</h1>
-            </>
-         }
+            </div>
          <Form className='mt-5 mb-5 border w-50 mx-auto' onSubmit={updateMap}>
 
             <Form.Group className='my-4 d-flex justify-content-center'>

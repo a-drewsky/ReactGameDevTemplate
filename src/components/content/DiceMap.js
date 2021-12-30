@@ -1,6 +1,6 @@
 export default class DiceMapClass {
 
-   constructor(ctx, ctx2, canvas, canvas2, hexMap, hexGroupMap, uiManager, stateManager, colorMap, diceSize, numPlayers, rollBuffer) {
+   constructor(ctx, ctx2, canvas, canvas2, hexMap, hexGroupMap, uiManager, stateManager, colorMap, diceSize, numPlayers) {
       this.ctx = ctx;
       this.ctx2 = ctx2;
       this.canvas = canvas;
@@ -11,8 +11,9 @@ export default class DiceMapClass {
       this.stateManager = stateManager;
       this.colorMap = colorMap;
       this.diceSize = diceSize;
+      this.battleDiceSize = canvas.width / 200 * 5 * 1.5;
       this.numPlayers = numPlayers;
-      this.rollBuffer = rollBuffer;
+      this.rollBuffer = this.battleDiceSize / 2;
 
       this.diceSheet = null;
       this.imageSize = null;
@@ -51,9 +52,9 @@ export default class DiceMapClass {
       //check attacker dice
       for (let i = 0; i < 4; i++) {
 
-         if (y < this.rollBuffer || y > this.rollBuffer + this.diceSize * 2 || this.stateManager.gameState.attackerRolls.length <= i) break;
+         if (y < this.rollBuffer || y > this.rollBuffer + this.battleDiceSize * 2 || this.stateManager.gameState.attackerRolls.length <= i) break;
          if (this.stateManager.gameState.attackerStoppedRolls[i] == true) continue;
-         if (x > this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i && x < this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i + this.diceSize * 2) {
+         if (x > this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i && x < this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i + this.battleDiceSize * 2) {
             return {
                owner: 'attacker',
                index: i
@@ -62,9 +63,9 @@ export default class DiceMapClass {
 
       }
       for (let i = 4; i < 8; i++) {
-         if (y < this.rollBuffer * 2 + this.diceSize * 2 || y > this.rollBuffer * 2 + this.diceSize * 2 + this.diceSize * 2 || this.stateManager.gameState.attackerRolls.length <= i) break;
+         if (y < this.rollBuffer * 2 + this.battleDiceSize * 2 || y > this.rollBuffer * 2 + this.battleDiceSize * 2 + this.battleDiceSize * 2 || this.stateManager.gameState.attackerRolls.length <= i) break;
          if (this.stateManager.gameState.attackerStoppedRolls[i] == true) continue;
-         if (x > this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4) && x < this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4) + this.diceSize * 2) {
+         if (x > this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4) && x < this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4) + this.battleDiceSize * 2) {
             return {
                owner: 'attacker',
                index: i
@@ -76,9 +77,9 @@ export default class DiceMapClass {
       //check defender dice
       for (let i = 0; i < 4; i++) {
 
-         if (y < this.rollBuffer || y > this.rollBuffer + this.diceSize * 2 || this.stateManager.gameState.defenderRolls.length <= i) break;
+         if (y < this.rollBuffer || y > this.rollBuffer + this.battleDiceSize * 2 || this.stateManager.gameState.defenderRolls.length <= i) break;
          if (this.stateManager.gameState.defenderStoppedRolls[i] == true) continue;
-         if (x < this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) && x > this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i + this.diceSize * 2)) {
+         if (x < this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i) && x > this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i + this.battleDiceSize * 2)) {
             return {
                owner: 'defender',
                index: i
@@ -88,9 +89,9 @@ export default class DiceMapClass {
       }
       for (let i = 4; i < 8; i++) {
 
-         if (y < this.rollBuffer * 2 + this.diceSize * 2 || y > this.rollBuffer * 2 + this.diceSize * 2 + this.diceSize * 2 || this.stateManager.gameState.defenderRolls.length <= i) break;
+         if (y < this.rollBuffer * 2 + this.battleDiceSize * 2 || y > this.rollBuffer * 2 + this.battleDiceSize * 2 + this.battleDiceSize * 2 || this.stateManager.gameState.defenderRolls.length <= i) break;
          if (this.stateManager.gameState.defenderStoppedRolls[i] == true) continue;
-         if (x < this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) && x > this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4) + this.diceSize * 2)) {
+         if (x < this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4)) && x > this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4) + this.battleDiceSize * 2)) {
             return {
                owner: 'defender',
                index: i
@@ -148,9 +149,9 @@ export default class DiceMapClass {
          if (this.stateManager.gameState.attackerRolls.length <= i) break;
 
          if (attackerRollTotal <= defenderRollTotal) {
-            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
          } else {
-            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
          }
       }
       for (let i = 4; i < 8; i++) {
@@ -158,8 +159,8 @@ export default class DiceMapClass {
          if (this.stateManager.gameState.attackerRolls.length <= i) break;
 
          if (attackerRollTotal <= defenderRollTotal) {
-            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
-         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
 
 
@@ -168,16 +169,16 @@ export default class DiceMapClass {
          if (this.stateManager.gameState.defenderRolls.length <= i) break;
 
          if (attackerRollTotal > defenderRollTotal) {
-            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) - this.diceSize * 2, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
-         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) - this.diceSize * 2, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i) - this.battleDiceSize * 2, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i) - this.battleDiceSize * 2, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
       for (let i = 4; i < 8; i++) {
 
          if (this.stateManager.gameState.defenderRolls.length <= i) break;
 
          if (attackerRollTotal > defenderRollTotal) {
-            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) - this.diceSize * 2, this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
-         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) - this.diceSize * 2, this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+            this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, 0, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4)) - this.battleDiceSize * 2, this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
+         } else this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4)) - this.battleDiceSize * 2, this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
    }
 
@@ -210,29 +211,24 @@ export default class DiceMapClass {
       //draw attacker dice
       for (let i = 0; i < 4; i++) {
          if (this.stateManager.gameState.attackerRolls.length <= i) break;
-         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
 
       }
       for (let i = 4; i < 8; i++) {
          if (this.stateManager.gameState.attackerRolls.length <= i) break;
-         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.attackerRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.attacker).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
 
 
       //draw defender dice
       for (let i = 0; i < 4; i++) {
          if (this.stateManager.gameState.defenderRolls.length <= i) break;
-         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * i) - this.diceSize * 2, this.rollBuffer, this.diceSize * 2, this.diceSize * 2)
+         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i) - this.battleDiceSize * 2, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
       for (let i = 4; i < 8; i++) {
          if (this.stateManager.gameState.defenderRolls.length <= i) break;
-         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.diceSize * 2 + this.rollBuffer) * (i - 4)) - this.diceSize * 2, this.rollBuffer * 2 + this.diceSize * 2, this.diceSize * 2, this.diceSize * 2)
+         this.ctx2.drawImage(this.diceSheet, this.stateManager.gameState.defenderRolls[i] * this.imageSize, (this.hexGroupMap.get(this.stateManager.gameState.defender).playerNumber + 1) * this.imageSize, this.imageSize, this.imageSize, this.canvas2.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4)) - this.battleDiceSize * 2, this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)
       }
-   }
-
-   drawDie = (x, y, number, colorIndex) => {
-      let sheetHasImage = (this.imageSize * (colorIndex + 1) < this.diceSheet.height)
-      this.ctx.drawImage(this.diceSheet, this.imageSize * (number - 1), sheetHasImage ? this.imageSize * (colorIndex + 1) : 0, this.imageSize, this.imageSize, x - this.diceSize * 0.5, y - this.diceSize * 0.5, this.diceSize, this.diceSize);
    }
 
    drawScoreboard = () => {
@@ -244,7 +240,9 @@ export default class DiceMapClass {
 
          this.uiManager.drawBox(x, y, width, height, radius, Math.floor(this.canvas.width / 250), color, playerTurn && '#ffd703')
 
-         this.drawDie(x + (width / 4) * 1.15, y + height / 2, 6, colorIndex)
+         let sheetHasImage = (this.imageSize * (colorIndex + 1) < this.diceSheet.height)
+         this.ctx.drawImage(this.diceSheet, this.imageSize * (6 - 1), sheetHasImage ? this.imageSize * (colorIndex + 1) : 0, this.imageSize, this.imageSize, x + (width / 4) * 1.15 - this.battleDiceSize * 0.5, y + height / 2 - this.battleDiceSize * 0.5, this.battleDiceSize, this.battleDiceSize);
+         
          this.ctx.font = `${this.canvas.width * 0.03}px Arial`;
          this.ctx.textAlign = 'center';
          this.ctx.textBaseline = 'middle'
