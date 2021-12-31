@@ -1,16 +1,18 @@
 import GameStateClass from "./GameState";
+import UIManagerClass from "./UIManager";
 
 export default class StateManagerClass {
 
-   constructor(drawGameObjects, intervals, buttonManager, buttonManager2){
+   constructor(drawGameObjects, intervals){
 
       this.drawGameObjects = drawGameObjects;
-      this.buttonManager = buttonManager;
-      this.buttonManager2 = buttonManager2;
 
       this.gameState = null;
 
       this.interval = null;
+
+      this.ui= new UIManagerClass(drawGameObjects);
+      this.ui2 = new UIManagerClass(drawGameObjects);
 
       this.globalStates = {
          currentPlayer: null
@@ -82,7 +84,7 @@ export default class StateManagerClass {
 
       this.setGameState('attacker', null);
 
-      this.buttonManager.setActive("endTurnButton");
+      this.ui.setActive("endTurnButton");
 
       this.drawGameObjects();
    }
@@ -94,7 +96,7 @@ export default class StateManagerClass {
       this.gameState = this.gameStates.endTurn;
       this.setGameStates([['endTurnTransitionTime', endTurnTransitionTime], ['endTurnTransitionTimer', 0]])
 
-      this.buttonManager.setInactive("endTurnButton");
+      this.ui.setInactive("endTurnButton");
 
       this.setGameStateInterval();
       this.drawGameObjects();
@@ -122,9 +124,9 @@ export default class StateManagerClass {
 
       this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls], ['attackerStoppedRolls', attackerStoppedRolls], ['defenderStoppedRolls', defenderStoppedRolls]]);
 
-      this.buttonManager.setInactive("endTurnButton");
-      this.buttonManager2.setActive("attackerStopAll");
-      this.buttonManager2.setActive("defenderStopAll");
+      this.ui.setInactive("endTurnButton");
+      this.ui2.setActive("attackerStopAll");
+      this.ui2.setActive("defenderStopAll");
 
       this.setGameStateInterval();
       this.drawGameObjects();
@@ -138,8 +140,8 @@ export default class StateManagerClass {
 
       this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls]])
 
-      this.buttonManager2.setDisabled("attackerStopAll");
-      this.buttonManager2.setDisabled("defenderStopAll");
+      this.ui2.setDisabled("attackerStopAll");
+      this.ui2.setDisabled("defenderStopAll");
 
       this.setGameStateInterval();
       this.drawGameObjects();

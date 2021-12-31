@@ -1,4 +1,4 @@
-import noise from "./perlin";
+import noise from "../utilities/perlin";
 
 export default class HexmapBuilderClass {
 
@@ -25,6 +25,7 @@ export default class HexmapBuilderClass {
       this.noiseFluctuation = (mapSize == "small" ? 3 : mapSize == "medium" ? 4 : 5)
       this.noiseThreshold = 0.4
       
+      this.maxTilesRemoved = null;
       this.tileRemoved = 0;
    }
 
@@ -178,6 +179,23 @@ export default class HexmapBuilderClass {
          this.hexMap.delete(key.Q, key.R);
       }
 
+   }
+
+   
+   build = (mapGeneration, Q, R) => {
+
+      if (mapGeneration == "noise") {
+            this.generateMap(Q, R);
+            this.removeNoiseTiles();
+            this.deleteIslands();
+      } else if (mapGeneration == "algorithmic") {
+            this.generateMap(Q, R);
+            this.removeOuterTiles();
+            this.removeInnerTiles();
+            this.deleteIslands();
+      } else {
+            this.generateMap(Q, R);
+      }
    }
 
 }

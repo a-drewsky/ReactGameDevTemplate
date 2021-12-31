@@ -21,12 +21,13 @@ const ContentPanel = () => {
    const updateMap = (e) => {
       e.preventDefault();
 
-      setWinCondition(null)
-
-      hexWarsGame.clear();
+      if(hexWarsGame) hexWarsGame.clear();
       let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration, setWinCondition);
-
+      
+      newHexWarsGame.createGame();
       setHexWarsGame(newHexWarsGame);
+      
+      setWinCondition(null);
 
    }
 
@@ -48,19 +49,7 @@ const ContentPanel = () => {
       ctx.current = context;
       ctx2.current = context2;
 
-      let newHexWarsGame = new hexWarsGameClass(ctx.current, ctx2.current, canvas.current, canvas2.current, mapSize, numberOfPlayers, mapGeneration);
-
-      setHexWarsGame(newHexWarsGame);
-
    }, [canvas])
-
-   useEffect(() => {
-      if (hexWarsGame == null) return;
-      if (hexWarsGame.stateManager.gameState == null) {
-         hexWarsGame.createGame();
-      }
-
-   }, [hexWarsGame])
 
 
    const mouseDown = ({ nativeEvent }) => {
@@ -87,7 +76,7 @@ const ContentPanel = () => {
                <h1>Player {winCondition} Wins!</h1>
             </>
          }
-            <div className={winCondition != null && 'd-none'}>
+            <div className={(winCondition != null || hexWarsGame == null) && 'd-none'}>
                <Row className='py-2'>
                   <canvas
                      ref={canvas}
@@ -105,7 +94,7 @@ const ContentPanel = () => {
                   <canvas
                      ref={canvas2}
                      width={window.innerWidth / 3}
-                     height={window.innerWidth / 11}
+                     height={window.innerWidth / 10}
                      onMouseDown={mouseDown2}
                      style={
                         { imageRendering: 'crisp-edges' }

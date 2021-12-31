@@ -1,8 +1,6 @@
-import HexagonClass from './Hexagon.js'
-
 export default class HexmapClass {
 
-   constructor(ctx, x, y, size, squish) {
+   constructor(x, y, size, squish) {
       this.hexMap = new Map();
 
       this.X = x;
@@ -11,8 +9,6 @@ export default class HexmapClass {
       this.VecQ = { x: Math.sqrt(3) * size, y: 0 }
       this.VecR = { x: Math.sqrt(3) / 2 * size, y: 3 / 2 * size }
       this.squish = squish;
-
-      this.HexagonClass = new HexagonClass(ctx, size, squish);
    }
 
    //Set an entry in the hexmap (void)
@@ -67,21 +63,6 @@ export default class HexmapClass {
    //return all key strings
    keyStrings = () => {
       return [...this.hexMap.keys()]
-   }
-
-   drawHexMap = () => {
-
-      for (let [key, value] of this.hexMap) {
-
-         let keyObj = this.split(key);
-
-         let xOffset = this.VecQ.x * keyObj.Q + this.VecR.x * keyObj.R;
-         let yOffset = this.VecQ.y * keyObj.Q * this.squish + this.VecR.y * keyObj.R * this.squish;
-         
-         
-         this.HexagonClass.drawHexagon(this.X + xOffset, this.Y + yOffset, value.color);
-      }
-
    }
 
    roundToNearestHex = (hex) => {
