@@ -3,6 +3,8 @@ Hexgroup should not have dice
 Make a new map in HexGroupDiceMap
 GameObjects should only be a data structure, use GameObjectHandlers for click functions
 DiceBattle should be a handler
+HexgroupDiceMap is unneccessary, HexGroupDiceMapBuilder adds dice to a HexGroupMap and HexgroupDiceMapHandler handles the click functionality
+   HexGroupDiceMapHandler extends HexGroupMapHandler
 
 Look through all classes
    Comment all functionality
