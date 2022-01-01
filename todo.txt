@@ -1,13 +1,24 @@
 
+Hexgroup should not have dice
+Make a new map in HexGroupDiceMap
+GameObjects should only be a data structure, use GameObjectHandlers for click functions
+DiceBattle should be a handler
 
-Clean up 
-   Organize top level variables
-   Look over everything. Comment all functionality. Remove any console logs
-   Organize inheritance objects into folders
-   Remove unneccessary methods from game objects
-   Make reuasable components with documentation
+Look through all classes
+   Comment all functionality
+   Remove any console logs
+   Remove unneccessary methods
+   Make private variables and methods private
 
+Test Screen sizes
 
+Organize top level variables
+
+Organize inheritance objects into folders
+
+Make reuasable components with documentation
+
+Make documentation for JavaScript Game Development System 
 
 
 
@@ -29,3 +40,7 @@ ai alogrithm
       stop all dice and await outcome
       repeat the entire process
    if all moves are tested without any passing then end turn
+
+
+
+Add game to youtube player and add networking
