@@ -32,7 +32,7 @@ export default class PlayerControllerClass {
                //test dice clicked
                let groupDiceClicked = this.hexGroupDiceMap.click(x, y);
                if (groupDiceClicked == -1) return;
-               if (groupDiceClicked != null && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber == this.stateManager.globalStates.currentPlayer) {
+               if (groupDiceClicked != null && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber == this.stateManager.globalStates.currentPlayer && this.hexGroupDiceMap.getGroup(groupDiceClicked).dice > 2) {
                   this.hexGroupDiceMap.setTiles('attacker', groupDiceClicked);
                   this.stateManager.setGameState('attacker', groupDiceClicked);
                   return;
