@@ -1,15 +1,13 @@
-import CollisionClass from "../utilities/collision";
+import CollisionClass from "../../utilities/collision";
 
-export default class DiceBattleClass {
+export default class DiceBattleControllerClass {
 
    constructor(ctx, canvas, stateManager){
-
-      this.ctx = ctx;
-      this.canvas = canvas;
 
       this.battleDiceSize = canvas.width / 100 * 3.75;
       this.rollBuffer = this.battleDiceSize / 2;
       this.stateManager = stateManager;
+      this.canvas = canvas;
 
       this.collision = new CollisionClass();
    }

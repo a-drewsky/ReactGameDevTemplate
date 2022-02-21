@@ -1,4 +1,4 @@
-import PixelUIClass from "../utilities/pixelUI";
+import PixelUIClass from "../../utilities/pixelUI";
 
 export default class ScoreboardViewClass {
 

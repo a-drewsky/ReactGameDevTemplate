@@ -1,7 +1,9 @@
-export default class PlayerControllerClass {
+export default class InputControllerClass {
 
-   constructor(hexGroupDiceMap, diceBattle, stateManager) {
+   constructor(hexGroupDiceMap, hexGroupDiceMapController, diceBattle, stateManager) {
       this.hexGroupDiceMap = hexGroupDiceMap;
+      this.hexGroupDiceMapController = hexGroupDiceMapController;
+
       this.diceBattle = diceBattle;
 
       this.stateManager = stateManager;
@@ -30,7 +32,7 @@ export default class PlayerControllerClass {
             if (this.stateManager.gameState.attacker == null) {
 
                //test dice clicked
-               let groupDiceClicked = this.hexGroupDiceMap.click(x, y);
+               let groupDiceClicked = this.hexGroupDiceMapController.click(x, y);
                if (groupDiceClicked == -1) return;
                if (groupDiceClicked != null && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber == this.stateManager.globalStates.currentPlayer && this.hexGroupDiceMap.getGroup(groupDiceClicked).dice > 2) {
                   this.hexGroupDiceMap.setTiles('attacker', groupDiceClicked);
@@ -50,7 +52,7 @@ export default class PlayerControllerClass {
             if (this.stateManager.gameState.defender == null) {
 
                //test dice clicked
-               let groupDiceClicked = this.hexGroupDiceMap.click(x, y);
+               let groupDiceClicked = this.hexGroupDiceMapController.click(x, y);
                if (groupDiceClicked != null) {
 
                   if (this.stateManager.gameState.attacker == groupDiceClicked) {

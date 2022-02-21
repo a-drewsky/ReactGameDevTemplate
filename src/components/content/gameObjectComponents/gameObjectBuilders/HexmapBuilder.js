@@ -1,4 +1,4 @@
-import noise from "../utilities/perlin";
+import noise from "../../utilities/perlin";
 
 export default class HexmapBuilderClass {
 

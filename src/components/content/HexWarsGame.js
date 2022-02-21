@@ -1,19 +1,21 @@
-import HexGroupDiceMapClass from './gameObjects/HexGroupDiceMap.js';
-import HexGroupDiceMapBuilderClass from './gameObjectBuilders/HexGroupDiceMapBuilder.js';
-import DiceBattleClass from './gameObjects/DiceBattle.js';
+import HexGroupDiceMapClass from './gameObjectComponents/gameObjectControllers/HexGroupDiceMapController.js';
+import HexGroupDiceMapBuilderClass from './gameObjectComponents/gameObjectBuilders/HexGroupDiceMapBuilder.js';
+import DiceBattleClass from './gameObjectComponents/gameObjectControllers/DiceBattleController.js';
 
-import StateManagerClass from './StateManager.js';
+import HexGroupMapClass from './gameObjectComponents/gameObjects/HexGroupMap.js';
 
-import PlayerControllerClass from './controllers/PlayerController.js';
+import StateManagerClass from './managers/StateManager.js';
 
-import ScoreboardViewClass from './gameObjectViews/ScoreboardView.js';
-import FightBoxViewClass from './gameObjectViews/FightBoxView.js';
-import DiceBattleViewClass from './gameObjectViews/DiceBattleView.js';
-import EndDiceBattleViewClass from './gameObjectViews/EndDiceBattleView.js';
+import InputControllerClass from './controllers/InputController.js';
 
-import HexGroupDiceMapViewClass from './gameObjectViews/HexGroupDiceMapView.js';
+import ScoreboardViewClass from './gameObjectComponents/gameObjectViews/ScoreboardView.js';
+import FightBoxViewClass from './gameObjectComponents/gameObjectViews/FightBoxView.js';
+import DiceBattleViewClass from './gameObjectComponents/gameObjectViews/DiceBattleView.js';
+import EndDiceBattleViewClass from './gameObjectComponents/gameObjectViews/EndDiceBattleView.js';
 
-import ButtonViewClass from './uiViews/ButtonView.js';
+import HexGroupDiceMapViewClass from './gameObjectComponents/gameObjectViews/HexGroupDiceMapView.js';
+
+import ButtonViewClass from './uiComponents/uiViews/ButtonView.js';
 
 import diceSheet from './images/diceSheet.png'
 
@@ -23,6 +25,8 @@ export default class hexWarsGameClass {
 
    constructor(ctx, ctx2, canvas, canvas2, mapSize, numPlayers, mapGeneration, setWinCondition) {
 
+
+      //TOP LEVEL VARIABLES
       //Organize this
       this.ctx = ctx;
       this.ctx2 = ctx2;
@@ -64,10 +68,11 @@ export default class hexWarsGameClass {
 
       this.diceBattle = new DiceBattleClass(this.ctx2, this.canvas2, this.stateManager)
 
-      this.hexGroupDiceMap = new HexGroupDiceMapClass(this.ctx, this.mapX, this.mapY, this.size, this.squish, this.numGroups, this.stateManager, this.colorMap, this.diceSize, this.numPlayers);
+      this.hexGroupDiceMap = new HexGroupMapClass(this.mapX, this.mapY, this.size, this.squish, this.stateManager, this.numGroups, this.numPlayers, this.colorMap);
+      this.hexGroupDiceMapController = new HexGroupDiceMapClass(this.hexGroupDiceMap);
       this.hexGroupDiceMapBuilder = new HexGroupDiceMapBuilderClass(this.hexGroupDiceMap, mapSize);
 
-      this.playerController = new PlayerControllerClass(this.hexGroupDiceMap, this.diceBattle, this.stateManager);
+      this.inputController = new InputControllerClass(this.hexGroupDiceMap, this.hexGroupDiceMapController, this.diceBattle, this.stateManager);
 
       this.setWinCondition = setWinCondition;
 
@@ -76,16 +81,64 @@ export default class hexWarsGameClass {
       this.diceBattleView = new DiceBattleViewClass(this.ctx2, this.imageMap, this.hexGroupDiceMap, this.stateManager, `${this.canvas2.width * 0.05}px Arial`, this.diceBattle, this.canvas2.width, this.canvas2.height)
       this.endDiceBattleView = new EndDiceBattleViewClass(this.ctx2, this.imageMap, this.hexGroupDiceMap, this.stateManager, `${this.canvas2.width * 0.05}px Arial`, canvas.width / 200 * 5 * 1.5, this.canvas2.width, this.canvas2.height)
 
-      this.hexGroupDiceMapView = new HexGroupDiceMapViewClass(this.ctx, this.hexGroupDiceMap, this.imageMap);
+      this.hexGroupDiceMapView = new HexGroupDiceMapViewClass(this.ctx, this.hexGroupDiceMap, this.diceSize, this.imageMap);
 
       this.buttonView = new ButtonViewClass();
+      //END TOP LEVEL VARIABLES
+
 
    }
 
-   clear = () => {
-      clearInterval(this.stateManager.interval);
+
+   //NOT SURE WHAT TO DO WITH THIS
+   drawGameObjects = () => {
+
+      //clear the canvas
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+      this.ctx2.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+      //global draw methods
+      this.hexGroupDiceMapView.draw();
+      this.scoreboardView.draw();
+
+      //specific draw methods
+      switch (this.stateManager.gameState.stateName) {
+         case 'playerTurn':
+            break;
+         case 'endTurn':
+            break;
+         case 'battle':
+            this.fightBoxView.draw();
+            this.diceBattleView.draw();
+            break;
+         case 'endBattle':
+            this.endDiceBattleView.draw();
+            break;
+      }
+
+      //draw UI
+      for (let [key, value] of this.stateManager.ui.getButtons()){
+         this.buttonView.draw(this.ctx, value);
+      }
+      for (let [key, value] of this.stateManager.ui2.getButtons()){
+         this.buttonView.draw(this.ctx2, value);
+      }
+   }
+   //................................
+
+   
+   //TOP LEVEL CONTROLLERS
+   click2 = (x, y) => {
+      this.inputController.click2(x, y);
    }
 
+   click = (x, y) => {
+      this.inputController.click(x, y);
+   }
+   //END TOP LEVEL CONTROLLERS
+
+
+   //SETUP FUNCTIONS
    createUIElements = () => {
       this.stateManager.ui.addButton("endTurnButton", this.canvas.width / 5.625 * 0.0625, 60, this.canvas.width / 5.625, this.canvas.width / 5.625 / 3, Math.floor(this.canvas.width / 250), `${this.canvas.width * 0.03}px Arial`, 'End Turn')
       this.stateManager.ui.setActive("endTurnButton");
@@ -127,41 +180,13 @@ export default class hexWarsGameClass {
       this.loadImages();
 
    }
+   //END SETUP FUNCTIONS
 
-   drawGameObjects = () => {
 
-      //clear the canvas
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-      this.ctx2.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-      //global draw methods
-      this.hexGroupDiceMapView.draw();
-      this.scoreboardView.draw();
-
-      //specific draw methods
-      switch (this.stateManager.gameState.stateName) {
-         case 'playerTurn':
-            break;
-         case 'endTurn':
-            break;
-         case 'battle':
-            this.fightBoxView.draw();
-            this.diceBattleView.draw();
-            break;
-         case 'endBattle':
-            this.endDiceBattleView.draw();
-            break;
-      }
-
-      //draw UI
-      for (let [key, value] of this.stateManager.ui.getButtons()){
-         this.buttonView.draw(this.ctx, value);
-      }
-      for (let [key, value] of this.stateManager.ui2.getButtons()){
-         this.buttonView.draw(this.ctx2, value);
-      }
+   //INTERVAL FUNCTIONS
+   clear = () => {
+      clearInterval(this.stateManager.interval);
    }
-
 
    endTurnInterval = () => {
       let endTurn = () => {
@@ -324,14 +349,6 @@ export default class hexWarsGameClass {
       this.stateManager.setGameStates([['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls]]);
 
    }
-
-
-   click2 = (x, y) => {
-      this.playerController.click2(x, y);
-   }
-
-   click = (x, y) => {
-      this.playerController.click(x, y);
-   }
+   //END INTERVAL FUNCTIONS
 
 }

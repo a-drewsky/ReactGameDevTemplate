@@ -1,4 +1,4 @@
-import CollisionClass from "../utilities/collision";
+import CollisionClass from "../../utilities/collision";
 
 export default class ButtonClass {
 

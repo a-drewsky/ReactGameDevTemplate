@@ -1,4 +1,5 @@
-import ButtonClass from "./uiElements/Button";
+import ButtonClass from "../uiComponents/uiElements/Button";
+import UIControllerClass from "../controllers/UIController";
 
 export default class UIManagerClass {
 
@@ -11,6 +12,8 @@ export default class UIManagerClass {
          active: 'active',
          clicked: 'clicked'
       }
+
+      this.uiController = new UIControllerClass(this.drawGameObjects, this.buttonMap, this.buttonStates);
    }
 
    getButtons = () => {
@@ -32,23 +35,26 @@ export default class UIManagerClass {
    }
 
    click = (x, y) => {
-      for (let [key, value] of this.buttonMap) {
-         if (value.state=='active' && value.click(x, y)) {
 
-            value.setState(this.buttonStates.clicked);
+      return this.uiController.click(x, y);
 
-            let clickTimer = setInterval(() => {
-               console.log("click")
-               if(value.state == 'click') value.setState(this.buttonStates.active);
-               clearInterval(clickTimer);
-               this.drawGameObjects();
-            }, 200)
+      // for (let [key, value] of this.buttonMap) {
+      //    if (value.state=='active' && value.click(x, y)) {
 
-            this.drawGameObjects();
-            return key;
-         }
-      }
-      return null;
+      //       value.setState(this.buttonStates.clicked);
+
+      //       let clickTimer = setInterval(() => {
+      //          console.log("click")
+      //          if(value.state == 'click') value.setState(this.buttonStates.active);
+      //          clearInterval(clickTimer);
+      //          this.drawGameObjects();
+      //       }, 200)
+
+      //       this.drawGameObjects();
+      //       return key;
+      //    }
+      // }
+      // return null;
    }
 
 

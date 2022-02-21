@@ -1,4 +1,4 @@
-import PixelUIClass from "../utilities/pixelUI";
+import PixelUIClass from "../../utilities/pixelUI";
 
 export default class ButtonViewClass {
 
@@ -6,6 +6,7 @@ export default class ButtonViewClass {
       this.pixelUI = new PixelUIClass();
    }
 
+   //should be a switch statement
    draw = (ctx, button) => {
       if (button.state == 'active') this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'lightGrey')
       if (button.state == 'inactive') this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'darkGrey')
