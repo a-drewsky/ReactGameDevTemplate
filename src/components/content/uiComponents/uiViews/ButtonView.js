@@ -8,9 +8,19 @@ export default class ButtonViewClass {
 
    //should be a switch statement
    draw = (ctx, button) => {
-      if (button.state == 'active') this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'lightGrey')
-      if (button.state == 'inactive') this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'darkGrey')
-      if (button.state == 'clicked') this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'grey')
+
+      switch(button.state){
+         case 'active':
+            this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'lightGrey');
+            break;
+         case 'inactive':
+            this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'darkGrey');
+            break;
+         case 'clicked':
+            this.pixelUI.drawButton(ctx, button.x, button.y, button.width, button.height, button.pixelSize, button.text, button.font, 'grey');
+            break;
+      }
+      
    }
 
 }

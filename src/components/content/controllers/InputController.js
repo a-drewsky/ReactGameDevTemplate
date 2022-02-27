@@ -1,8 +1,11 @@
 export default class InputControllerClass {
 
-   constructor(hexGroupDiceMap, hexGroupDiceMapController, diceBattle, stateManager) {
+   constructor(hexGroupDiceMap, hexGroupDiceMapController, uiController1, uiController2, diceBattle, stateManager) {
       this.hexGroupDiceMap = hexGroupDiceMap;
       this.hexGroupDiceMapController = hexGroupDiceMapController;
+      
+      this.uiController1 = uiController1;
+      this.uiController2 = uiController2;
 
       this.diceBattle = diceBattle;
 
@@ -11,10 +14,10 @@ export default class InputControllerClass {
 
    click = (x, y) => {
 
-      switch (this.stateManager.gameState.stateName) {
+      switch (this.stateManager.gameStates.current.stateName) {
          case 'playerTurn':
 
-            let buttonClick = this.stateManager.ui.click(x, y);
+            let buttonClick = this.uiController1.click(x, y);
             if (buttonClick == 'endTurnButton') {
                this.stateManager.setEndTurn(this.hexGroupDiceMap.getPlayerGroups(this.stateManager.globalStates.currentPlayer).length - 1);
                return;
@@ -29,7 +32,7 @@ export default class InputControllerClass {
             hexClicked = this.hexGroupDiceMap.roundToNearestHex(hexClicked);
 
 
-            if (this.stateManager.gameState.attacker == null) {
+            if (this.stateManager.gameStates.current.attacker == null) {
 
                //test dice clicked
                let groupDiceClicked = this.hexGroupDiceMapController.click(x, y);
@@ -49,27 +52,27 @@ export default class InputControllerClass {
                return;
             }
 
-            if (this.stateManager.gameState.defender == null) {
+            if (this.stateManager.gameStates.current.defender == null) {
 
                //test dice clicked
                let groupDiceClicked = this.hexGroupDiceMapController.click(x, y);
                if (groupDiceClicked != null) {
 
-                  if (this.stateManager.gameState.attacker == groupDiceClicked) {
+                  if (this.stateManager.gameStates.current.attacker == groupDiceClicked) {
                      this.hexGroupDiceMap.setTiles('default', groupDiceClicked);
                      this.stateManager.setGameState('attacker', null);
                      return;
                   }
 
-                  if (this.hexGroupDiceMap.adjacentGroups(this.stateManager.gameState.attacker, groupDiceClicked) && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber != this.stateManager.globalStates.currentPlayer) {
+                  if (this.hexGroupDiceMap.adjacentGroups(this.stateManager.gameStates.current.attacker, groupDiceClicked) && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber != this.stateManager.globalStates.currentPlayer) {
                      this.hexGroupDiceMap.setTiles('defender', groupDiceClicked);
-                     this.stateManager.setBattle(this.stateManager.gameState.attacker, groupDiceClicked, this.hexGroupDiceMap.getGroup(this.stateManager.gameState.attacker).dice, this.hexGroupDiceMap.getGroup(groupDiceClicked).dice);
+                     this.stateManager.setBattle(this.stateManager.gameStates.current.attacker, groupDiceClicked, this.hexGroupDiceMap.getGroup(this.stateManager.gameStates.current.attacker).dice, this.hexGroupDiceMap.getGroup(groupDiceClicked).dice);
                      return;
                   }
 
                   if (this.hexGroupDiceMap.getGroup(groupDiceClicked).dice >= 2 && this.hexGroupDiceMap.getGroup(groupDiceClicked).playerNumber == this.stateManager.globalStates.currentPlayer) {
                      this.hexGroupDiceMap.setTiles('attacker', groupDiceClicked);
-                     this.hexGroupDiceMap.setTiles('default', this.stateManager.gameState.attacker);
+                     this.hexGroupDiceMap.setTiles('default', this.stateManager.gameStates.current.attacker);
                      this.stateManager.setGameState('attacker', groupDiceClicked);
                      return;
                   }
@@ -80,20 +83,20 @@ export default class InputControllerClass {
                //test hex clicked
                if (!this.hexGroupDiceMap.has(hexClicked.Q, hexClicked.R)) return;
 
-               if (this.stateManager.gameState.attacker == this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group) {
+               if (this.stateManager.gameStates.current.attacker == this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group) {
                   this.hexGroupDiceMap.setTiles('default', this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group);
                   this.stateManager.setGameState('attacker', null);
                   return;
                }
 
-               if (this.hexGroupDiceMap.adjacentGroups(this.stateManager.gameState.attacker, this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group) && this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.stateManager.globalStates.currentPlayer) {
+               if (this.hexGroupDiceMap.adjacentGroups(this.stateManager.gameStates.current.attacker, this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group) && this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).playerNumber != this.stateManager.globalStates.currentPlayer) {
                   this.hexGroupDiceMap.setTiles('defender', this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group);
-                  this.stateManager.setBattle(this.stateManager.gameState.attacker, this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group, this.hexGroupDiceMap.getGroup(this.stateManager.gameState.attacker).dice, this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).dice);
+                  this.stateManager.setBattle(this.stateManager.gameStates.current.attacker, this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group, this.hexGroupDiceMap.getGroup(this.stateManager.gameStates.current.attacker).dice, this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).dice);
                   return;
                }
                if (this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).dice >= 2 && this.hexGroupDiceMap.getGroup(this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group).playerNumber == this.stateManager.globalStates.currentPlayer) {
                   this.hexGroupDiceMap.setTiles('attacker', this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group);
-                  this.hexGroupDiceMap.setTiles('default', this.stateManager.gameState.attacker);
+                  this.hexGroupDiceMap.setTiles('default', this.stateManager.gameStates.current.attacker);
                   this.stateManager.setGameState('attacker', this.hexGroupDiceMap.get(hexClicked.Q, hexClicked.R).group);
                   return;
                }
@@ -116,7 +119,7 @@ export default class InputControllerClass {
 
    click2 = (x, y) => {
 
-      switch (this.stateManager.gameState.stateName) {
+      switch (this.stateManager.gameStates.current.stateName) {
          case 'playerTurn':
             break;
          case 'endTurn':
@@ -124,14 +127,14 @@ export default class InputControllerClass {
          case 'battle':
 
             //test buttons clicked
-            let buttonClicked = this.stateManager.ui2.click(x, y);
+            let buttonClicked = this.uiController2.click(x, y);
             if (buttonClicked != null) {
                if (buttonClicked == 'attackerStopAll') {
-                  for (let i = 0; i < this.stateManager.gameState.attackerStoppedRolls.length; i++) this.stateManager.gameState.attackerStoppedRolls[i] = true;
+                  for (let i = 0; i < this.stateManager.gameStates.current.attackerStoppedRolls.length; i++) this.stateManager.gameStates.current.attackerStoppedRolls[i] = true;
                   return;
                }
                if (buttonClicked == 'defenderStopAll') {
-                  for (let i = 0; i < this.stateManager.gameState.defenderStoppedRolls.length; i++) this.stateManager.gameState.defenderStoppedRolls[i] = true;
+                  for (let i = 0; i < this.stateManager.gameStates.current.defenderStoppedRolls.length; i++) this.stateManager.gameStates.current.defenderStoppedRolls[i] = true;
                   return;
                }
             }
@@ -140,11 +143,11 @@ export default class InputControllerClass {
 
             if (dieClicked != null) {
                if (dieClicked.owner == 'attacker') {
-                  let attackerStoppedRolls = this.stateManager.gameState.attackerStoppedRolls;
+                  let attackerStoppedRolls = this.stateManager.gameStates.current.attackerStoppedRolls;
                   attackerStoppedRolls[dieClicked.index] = true;
                   this.stateManager.setGameState('attackerStoppedRolls', attackerStoppedRolls);
                } else if (dieClicked.owner == 'defender') {
-                  let defenderStoppedRolls = this.stateManager.gameState.defenderStoppedRolls;
+                  let defenderStoppedRolls = this.stateManager.gameStates.current.defenderStoppedRolls;
                   defenderStoppedRolls[dieClicked.index] = true;
                   this.stateManager.setGameState('defenderStoppedRolls', defenderStoppedRolls);
                }

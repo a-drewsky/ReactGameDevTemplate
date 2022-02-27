@@ -3,28 +3,27 @@ import UIManagerClass from "./UIManager";
 
 export default class StateManagerClass {
 
-   constructor(drawGameObjects, intervals){
+   constructor(drawMethods, intervals, uiManager1, uiManager2){
 
-      this.drawGameObjects = drawGameObjects;
+      this.drawMethods = drawMethods;
 
-      this.gameState = null;
+      this.uiManager1 = uiManager1;
+      this.uiManager2 = uiManager2;
 
       this.interval = null;
-
-      this.ui= new UIManagerClass(drawGameObjects);
-      this.ui2 = new UIManagerClass(drawGameObjects);
 
       this.globalStates = {
          currentPlayer: null
       }
 
       this.gameStates = {
+         current: null,
          playerTurn: new GameStateClass(
             'playerTurn',
             {
                attacker: null
             },
-            null
+            this.drawMethods.defaultDrawMethod
          ),
          endTurn: new GameStateClass(
             'endTurn',
@@ -32,6 +31,7 @@ export default class StateManagerClass {
                endTurnTransitionTime: null,
                endTurnTransitionTimer: null
             },
+            this.drawMethods.defaultDrawMethod,
             intervals.endTurnInterval, 5
          ),
          battle: new GameStateClass(
@@ -44,6 +44,7 @@ export default class StateManagerClass {
                attackerStoppedRolls: [],
                defenderStoppedRolls: []
             },
+            this.drawMethods.battleDrawMethod,
             intervals.battleInterval, 50
          ),
          endBattle: new GameStateClass(
@@ -54,59 +55,63 @@ export default class StateManagerClass {
                attackerRolls: [],
                defenderRolls: [],
             },
+            this.drawMethods.endBattleDrawMethod,
             intervals.endBattleInterval, 500
          )
       }
+
+
+
    }
 
    setGameStateInterval = () => {
-      this.interval = setInterval(this.gameState.interval, this.gameState.intervalFrequency);
+      this.interval = setInterval(this.gameStates.current.interval, this.gameStates.current.intervalFrequency);
    }
 
    setGameState = (state, value) => {
-      this.gameState[state] = value;
-      this.drawGameObjects();
+      this.gameStates.current[state] = value;
+      this.gameStates.current.draw();
    }
 
    setGameStates = (statesValuePairs) => {
       for(let i=0; i<statesValuePairs.length; i++){
-         this.gameState[statesValuePairs[i][0]] = statesValuePairs[i][1];
+         this.gameStates.current[statesValuePairs[i][0]] = statesValuePairs[i][1];
       }
-      this.drawGameObjects();
+      this.gameStates.current.draw();
    }
 
    setPlayerTurn = (player) => {
       
       clearInterval(this.interval);
 
-      this.gameState = this.gameStates.playerTurn;
-      this.globalStates.currentPlayer = player;
+      this.gameStates.current = this.gameStates.playerTurn;
+      this.globalStates.currentPlayer = player; //create set global state method
 
       this.setGameState('attacker', null);
 
-      this.ui.setActive("endTurnButton");
+      this.uiManager1.setActive("endTurnButton");
 
-      this.drawGameObjects();
+      this.gameStates.current.draw();
    }
 
    setEndTurn = (endTurnTransitionTime) => {
       
       clearInterval(this.interval);
 
-      this.gameState = this.gameStates.endTurn;
+      this.gameStates.current = this.gameStates.endTurn;
       this.setGameStates([['endTurnTransitionTime', endTurnTransitionTime], ['endTurnTransitionTimer', 0]])
 
-      this.ui.setInactive("endTurnButton");
+      this.uiManager1.setInactive("endTurnButton");
 
       this.setGameStateInterval();
-      this.drawGameObjects();
+      this.gameStates.current.draw();
    }
    
    setBattle = (attacker, defender, attackerDice, defenderDice) => {
 
       clearInterval(this.interval)
 
-      this.gameState = this.gameStates.battle;
+      this.gameStates.current = this.gameStates.battle;
 
       let attackerRolls = [];
       let defenderRolls = [];
@@ -124,27 +129,27 @@ export default class StateManagerClass {
 
       this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls], ['attackerStoppedRolls', attackerStoppedRolls], ['defenderStoppedRolls', defenderStoppedRolls]]);
 
-      this.ui.setInactive("endTurnButton");
-      this.ui2.setActive("attackerStopAll");
-      this.ui2.setActive("defenderStopAll");
+      this.uiManager1.setInactive("endTurnButton");
+      this.uiManager2.setActive("attackerStopAll");
+      this.uiManager2.setActive("defenderStopAll");
 
       this.setGameStateInterval();
-      this.drawGameObjects();
+      this.gameStates.current.draw();
 
    }
 
    setEndBattle = (attacker, defender, attackerRolls, defenderRolls) => {
 
       clearInterval(this.interval)
-      this.gameState = this.gameStates.endBattle;
+      this.gameStates.current = this.gameStates.endBattle;
 
       this.setGameStates([['attacker', attacker], ['defender', defender], ['attackerRolls', attackerRolls], ['defenderRolls', defenderRolls]])
 
-      this.ui2.setDisabled("attackerStopAll");
-      this.ui2.setDisabled("defenderStopAll");
+      this.uiManager2.setDisabled("attackerStopAll");
+      this.uiManager2.setDisabled("defenderStopAll");
 
       this.setGameStateInterval();
-      this.drawGameObjects();
+      this.gameStates.current.draw();
    }
    
 

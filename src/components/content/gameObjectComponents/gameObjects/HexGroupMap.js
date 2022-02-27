@@ -6,83 +6,38 @@ export default class HexGroupMapClass extends HexmapClass {
       
       super(x, y, size, squish);
 
-      this.numGroups = numGroups
-      this.numPlayers = numPlayers
+      this.numGroups = numGroups;
+      this.numPlayers = numPlayers;
       this.hexGroupMap = new Map();
       this.stateManager = stateManager;
-      this.colorMap = colorMap
+      this.colorMap = colorMap;
    }
 
-   getGroup = (index) => {
-      return this.hexGroupMap.get(index);
-   }
+   //SET METHODS
 
    setGroup = (index, obj) => {
       this.hexGroupMap.set(index, obj);
-   }
-
-   getGroupMap = () => {
-      return this.hexGroupMap;
    }
 
    setGroupMap = (map) => {
       this.hexGroupMap = map;
    }
 
+   //END SET METHODS
+
+
+   //GET METHODS
+
+   getGroup = (index) => {
+      return this.hexGroupMap.get(index);
+   }
+
+   getGroupMap = () => {
+      return this.hexGroupMap;
+   }
+
    groupMapEntries = () => {
       return this.hexGroupMap.entries();
-   }
-
-   setTiles = (state, group) => {
-
-      let tiles = this.getGroupTiles(group)
-
-      switch(state){
-         case 'attacker':
-            for(let i=0; i<tiles.length; i++){
-               this.set(tiles[i].Q, tiles[i].R, {
-                  group: group,
-                  color: 'snow'
-               })
-            }
-            break;
-         case 'defender':
-            for(let i=0; i<tiles.length; i++){
-               this.set(tiles[i].Q, tiles[i].R, {
-                  group: group,
-                  color: 'slateGrey'
-               })
-            }
-            break;
-         default:
-            for(let i=0; i<tiles.length; i++){
-               this.set(tiles[i].Q, tiles[i].R, {
-                  group: group,
-                  color: this.colorMap[this.getGroup(group).playerNumber]
-               })
-            }
-            break;
-      }
-
-      
-   }
-
-   adjacentGroups = (group1, group2) => {
-      let group1Tiles = this.getGroupTiles(group1);
-      let group2Tiles = this.getGroupTiles(group2);
-
-      for (let i = 0; i < group1Tiles.length; i++) {
-         let neighbors = this.neighborKeys(group1Tiles[i].Q, group1Tiles[i].R);
-
-         for (let j = 0; j < neighbors.length; j++) {
-            let neighbor = neighbors[j];
-
-            for (let k = 0; k < group2Tiles.length; k++) {
-               if (neighbor.Q == group2Tiles[k].Q && neighbor.R == group2Tiles[k].R) return true;
-            }
-         }
-      }
-      return false;
    }
 
    getPlayerGroups = (playerNumber) => {
@@ -102,8 +57,6 @@ export default class HexGroupMapClass extends HexmapClass {
 
       return edges;
    }
-
-   
 
    getGroupTiles = (group) => {
       let keys = this.keys();
@@ -140,13 +93,70 @@ export default class HexGroupMapClass extends HexmapClass {
    
             filteredKeys.push(keys[i]);
          }
-
          numNeighbors--;
-
       }
-      
-
        return filteredKeys;
+   }
+
+   //END GET METHODS
+
+   
+   //BOOL METHODS
+
+   adjacentGroups = (group1, group2) => {
+      let group1Tiles = this.getGroupTiles(group1);
+      let group2Tiles = this.getGroupTiles(group2);
+
+      for (let i = 0; i < group1Tiles.length; i++) {
+         let neighbors = this.neighborKeys(group1Tiles[i].Q, group1Tiles[i].R);
+
+         for (let j = 0; j < neighbors.length; j++) {
+            let neighbor = neighbors[j];
+
+            for (let k = 0; k < group2Tiles.length; k++) {
+               if (neighbor.Q == group2Tiles[k].Q && neighbor.R == group2Tiles[k].R) return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   //END BOOL METHODS
+
+
+
+   setTiles = (state, group) => {
+
+      let tiles = this.getGroupTiles(group)
+
+      switch(state){
+         case 'attacker':
+            for(let i=0; i<tiles.length; i++){
+               this.set(tiles[i].Q, tiles[i].R, {
+                  group: group,
+                  color: 'snow'
+               })
+            }
+            break;
+         case 'defender':
+            for(let i=0; i<tiles.length; i++){
+               this.set(tiles[i].Q, tiles[i].R, {
+                  group: group,
+                  color: 'slateGrey'
+               })
+            }
+            break;
+         default:
+            for(let i=0; i<tiles.length; i++){
+               this.set(tiles[i].Q, tiles[i].R, {
+                  group: group,
+                  color: this.colorMap[this.getGroup(group).playerNumber]
+               })
+            }
+            break;
+      }
+
+      
    }
 
 }

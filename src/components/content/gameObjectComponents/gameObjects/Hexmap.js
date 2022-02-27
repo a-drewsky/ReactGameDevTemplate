@@ -3,6 +3,7 @@ export default class HexmapClass {
    constructor(x, y, size, squish) {
       this.hexMap = new Map();
 
+      //move all of this to hexagonViewClass
       this.X = x;
       this.Y = y;
       this.size = size;
@@ -11,14 +12,12 @@ export default class HexmapClass {
       this.squish = squish;
    }
 
+
+   //SET METHODS
+
    //Set an entry in the hexmap (void)
    set = (q, r, obj) => {
       this.hexMap.set(q + ',' + r, obj);
-   }
-
-   //get an entry in the hexmap (returns a hex tile object)
-   get = (q, r) => {
-      return this.hexMap.get(q + "," + r);
    }
 
    //delete an entry in the hexmap (void)
@@ -26,23 +25,19 @@ export default class HexmapClass {
       this.hexMap.delete(q + "," + r);
    }
 
+   //END SET METHODS
+
+   
+   //GET METHODS
+
+   //get an entry in the hexmap (returns a hex tile object)
+   get = (q, r) => {
+      return this.hexMap.get(q + "," + r);
+   }
+
    //check if hexmap has an entry (returns a boolean)
    has = (q, r) => {
       return this.hexMap.has([q, r].join(','));
-   }
-
-   //converts key string to key object (returns a key object)
-   split = (key) => {
-      let nums = key.split(',').map(Number);
-      return {
-         Q: nums[0],
-         R: nums[1]
-      }
-   }
-
-   //converts a key object to a key string (returns a key string)
-   join = (q, r) => {
-      return [q, r].join(',')
    }
 
    //returns the hexmap
@@ -295,4 +290,24 @@ export default class HexmapClass {
       return arr[Math.floor(Math.random() * arr.length)]
    }
 
+   //END GET METHODS
+
+
+   //HELPER METHODS
+
+   //converts key string to key object (returns a key object)
+   split = (key) => {
+      let nums = key.split(',').map(Number);
+      return {
+         Q: nums[0],
+         R: nums[1]
+      }
+   }
+
+   //converts a key object to a key string (returns a key string)
+   join = (q, r) => {
+      return [q, r].join(',')
+   }
+
+   //END HELPER METHODS
 }

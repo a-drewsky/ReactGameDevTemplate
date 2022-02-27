@@ -18,8 +18,8 @@ export default class DiceBattleControllerClass {
       //check attacker dice
       for (let i = 0; i < 4; i++) {
 
-         if (this.stateManager.gameState.attackerRolls.length <= i) break;
-         if (this.stateManager.gameState.attackerStoppedRolls[i] == true) continue;
+         if (this.stateManager.gameStates.current.attackerRolls.length <= i) break;
+         if (this.stateManager.gameStates.current.attackerStoppedRolls[i] == true) continue;
 
          if(this.collision.pointRect(x, y, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i, this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)){
             return {
@@ -29,8 +29,8 @@ export default class DiceBattleControllerClass {
          }
       }
       for (let i = 4; i < 8; i++) {
-         if (this.stateManager.gameState.attackerRolls.length <= i) break;
-         if (this.stateManager.gameState.attackerStoppedRolls[i] == true) continue;
+         if (this.stateManager.gameStates.current.attackerRolls.length <= i) break;
+         if (this.stateManager.gameStates.current.attackerStoppedRolls[i] == true) continue;
 
          if(this.collision.pointRect(x, y, this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4), this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)){
             return {
@@ -43,8 +43,8 @@ export default class DiceBattleControllerClass {
       //check defender dice
       for (let i = 0; i < 4; i++) {
 
-         if(this.stateManager.gameState.defenderRolls.length <= i) break;
-         if (this.stateManager.gameState.defenderStoppedRolls[i] == true) continue;
+         if(this.stateManager.gameStates.current.defenderRolls.length <= i) break;
+         if (this.stateManager.gameStates.current.defenderStoppedRolls[i] == true) continue;
 
          if(this.collision.pointRect(x, y, this.canvas.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * i + this.battleDiceSize * 2), this.rollBuffer, this.battleDiceSize * 2, this.battleDiceSize * 2)){
             return {
@@ -55,8 +55,8 @@ export default class DiceBattleControllerClass {
       }
       for (let i = 4; i < 8; i++) {
 
-         if(this.stateManager.gameState.defenderRolls.length <= i) break;
-         if (this.stateManager.gameState.defenderStoppedRolls[i] == true) continue;
+         if(this.stateManager.gameStates.current.defenderRolls.length <= i) break;
+         if (this.stateManager.gameStates.current.defenderStoppedRolls[i] == true) continue;
 
          if(this.collision.pointRect(x, y, this.canvas.width - (this.rollBuffer + (this.battleDiceSize * 2 + this.rollBuffer) * (i - 4) + this.battleDiceSize * 2), this.rollBuffer * 2 + this.battleDiceSize * 2, this.battleDiceSize * 2, this.battleDiceSize * 2)){
             return {

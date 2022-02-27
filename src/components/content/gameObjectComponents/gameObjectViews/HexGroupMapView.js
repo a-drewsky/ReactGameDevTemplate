@@ -40,7 +40,7 @@ export default class HexGroupMapViewClass {
          let edges = [];
          if (value.group != null) edges = this.hexGroupMap.getGroupEdges(keyObj.Q, keyObj.R);
 
-         if (value.group == this.hexGroupMap.stateManager.gameState.defender) this.HexagonEdgesView.draw(this.ctx, this.hexGroupMap.size, this.hexGroupMap.squish, this.hexGroupMap.X + xOffset, this.hexGroupMap.Y + yOffset, edges, Math.floor(this.hexGroupMap.size / 5.5), "pixel", "#ff0000")
+         if (value.group == this.hexGroupMap.stateManager.gameStates.current.defender) this.HexagonEdgesView.draw(this.ctx, this.hexGroupMap.size, this.hexGroupMap.squish, this.hexGroupMap.X + xOffset, this.hexGroupMap.Y + yOffset, edges, Math.floor(this.hexGroupMap.size / 5.5), "pixel", "#ff0000")
 
       }
 
@@ -55,7 +55,7 @@ export default class HexGroupMapViewClass {
          let edges = [];
          if (value.group != null) edges = this.hexGroupMap.getGroupEdges(keyObj.Q, keyObj.R);
 
-         if (value.group == this.hexGroupMap.stateManager.gameState.attacker) this.HexagonEdgesView.draw(this.ctx, this.hexGroupMap.size, this.hexGroupMap.squish, this.hexGroupMap.X + xOffset, this.hexGroupMap.Y + yOffset, edges, Math.floor(this.hexGroupMap.size / 5.5), "pixel", "#ffd900")
+         if (value.group == this.hexGroupMap.stateManager.gameStates.current.attacker) this.HexagonEdgesView.draw(this.ctx, this.hexGroupMap.size, this.hexGroupMap.squish, this.hexGroupMap.X + xOffset, this.hexGroupMap.Y + yOffset, edges, Math.floor(this.hexGroupMap.size / 5.5), "pixel", "#ffd900")
 
       }
 

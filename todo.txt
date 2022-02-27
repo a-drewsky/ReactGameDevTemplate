@@ -2,31 +2,18 @@
 
 Tasks:
 
--Every game state should have its own draw method
-
 -Clean up all classes
 
 -Organize top level variables
 
--should scoreboard and fightbox be ui components?
+-Make reuasable components with documentation
 
--fix uimanager click
+-Make documentation for JavaScript Game Development System 
+   create class templates and examples
+   use composition instead of inheritance next time
+   Any view that doesn't use a gameobject should be a uiObject / uiView
+   views should take in ctx in constructor and object in draw method
 
-
-
-Look through all classes
-   Comment all functionality
-   Remove any console logs
-   Remove unneccessary methods
-   Make private variables and methods private
-
-Test Screen sizes
-
-Organize inheritance objects into folders
-
-Make reuasable components with documentation
-
-Make documentation for JavaScript Game Development System 
 
 
 

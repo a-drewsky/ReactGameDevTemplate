@@ -3,8 +3,7 @@ import UIControllerClass from "../controllers/UIController";
 
 export default class UIManagerClass {
 
-   constructor(drawGameObjects) {
-      this.drawGameObjects = drawGameObjects;
+   constructor() {
       this.buttonMap = new Map();
       this.buttonStates = {
          disabled: 'disabled',
@@ -12,8 +11,6 @@ export default class UIManagerClass {
          active: 'active',
          clicked: 'clicked'
       }
-
-      this.uiController = new UIControllerClass(this.drawGameObjects, this.buttonMap, this.buttonStates);
    }
 
    getButtons = () => {
@@ -34,28 +31,28 @@ export default class UIManagerClass {
       this.buttonMap.get(buttonName).setState(this.buttonStates.active);
    }
 
-   click = (x, y) => {
+   // click = (x, y) => {
 
-      return this.uiController.click(x, y);
+   //    return this.uiController.click(x, y);
 
-      // for (let [key, value] of this.buttonMap) {
-      //    if (value.state=='active' && value.click(x, y)) {
+   //    // for (let [key, value] of this.buttonMap) {
+   //    //    if (value.state=='active' && value.click(x, y)) {
 
-      //       value.setState(this.buttonStates.clicked);
+   //    //       value.setState(this.buttonStates.clicked);
 
-      //       let clickTimer = setInterval(() => {
-      //          console.log("click")
-      //          if(value.state == 'click') value.setState(this.buttonStates.active);
-      //          clearInterval(clickTimer);
-      //          this.drawGameObjects();
-      //       }, 200)
+   //    //       let clickTimer = setInterval(() => {
+   //    //          console.log("click")
+   //    //          if(value.state == 'click') value.setState(this.buttonStates.active);
+   //    //          clearInterval(clickTimer);
+   //    //          this.drawGameObjects();
+   //    //       }, 200)
 
-      //       this.drawGameObjects();
-      //       return key;
-      //    }
-      // }
-      // return null;
-   }
+   //    //       this.drawGameObjects();
+   //    //       return key;
+   //    //    }
+   //    // }
+   //    // return null;
+   // }
 
 
 

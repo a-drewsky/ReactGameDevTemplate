@@ -28,15 +28,15 @@ export default class HexGroupDiceMapViewClass {
          this.ctx.fill();
          for (let j = 4; j < 8; j++) {
             if (value.dice > j) {
-               if (this.hexGroupDiceMap.stateManager.gameState.stateName == 'endBattle') {
+               if (this.hexGroupDiceMap.stateManager.gameStates.current.stateName == 'endBattle') {
 
                   //attacker roll total
-                  let attackerRollTotal = this.hexGroupDiceMap.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0);
+                  let attackerRollTotal = this.hexGroupDiceMap.stateManager.gameStates.current.attackerRolls.reduce((a, b) => a + b, 0);
 
                   //defender roll total
-                  let defenderRollTotal = this.hexGroupDiceMap.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0);
+                  let defenderRollTotal = this.hexGroupDiceMap.stateManager.gameStates.current.defenderRolls.reduce((a, b) => a + b, 0);
 
-                  if ((attackerRollTotal > defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameState.defender) || (attackerRollTotal <= defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameState.attacker)) {
+                  if ((attackerRollTotal > defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameStates.current.defender) || (attackerRollTotal <= defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameStates.current.attacker)) {
                      this.ctx.drawImage(this.imageMap.get('diceSheet'), this.imageMap.get('diceSheet').width/6 * value.diceOrientations[j], 0, this.imageMap.get('diceSheet').width/6, this.imageMap.get('diceSheet').width/6, this.hexGroupDiceMap.X + value.drawPos.X - this.diceSize * 1.35, this.hexGroupDiceMap.Y + value.drawPos.Y * this.hexGroupDiceMap.squish - this.diceSize * (1 + (j - 4) * 0.55), this.diceSize, this.diceSize);
                      continue;
                   }
@@ -47,15 +47,15 @@ export default class HexGroupDiceMapViewClass {
 
          for (let j = 0; j < 4; j++) {
             if (value.dice > j) {
-               if (this.hexGroupDiceMap.stateManager.gameState.stateName == 'endBattle') {
+               if (this.hexGroupDiceMap.stateManager.gameStates.current.stateName == 'endBattle') {
 
                   //attacker roll total
-                  let attackerRollTotal = this.hexGroupDiceMap.stateManager.gameState.attackerRolls.reduce((a, b) => a + b, 0);
+                  let attackerRollTotal = this.hexGroupDiceMap.stateManager.gameStates.current.attackerRolls.reduce((a, b) => a + b, 0);
 
                   //defender roll total
-                  let defenderRollTotal = this.hexGroupDiceMap.stateManager.gameState.defenderRolls.reduce((a, b) => a + b, 0);
+                  let defenderRollTotal = this.hexGroupDiceMap.stateManager.gameStates.current.defenderRolls.reduce((a, b) => a + b, 0);
 
-                  if ((attackerRollTotal > defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameState.defender) || (attackerRollTotal <= defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameState.attacker)) {
+                  if ((attackerRollTotal > defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameStates.current.defender) || (attackerRollTotal <= defenderRollTotal && key == this.hexGroupDiceMap.stateManager.gameStates.current.attacker)) {
                      this.ctx.drawImage(this.imageMap.get('diceSheet'), this.imageMap.get('diceSheet').width/6 * value.diceOrientations[j], 0, this.imageMap.get('diceSheet').width/6, this.imageMap.get('diceSheet').width/6, this.hexGroupDiceMap.X + value.drawPos.X - this.diceSize * 0.6, this.hexGroupDiceMap.Y + value.drawPos.Y * this.hexGroupDiceMap.squish - this.diceSize * (0.75 + j * 0.55), this.diceSize, this.diceSize);
                      continue;
                   }
