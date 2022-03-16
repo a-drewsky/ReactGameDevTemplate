@@ -13,8 +13,6 @@ export default class PixelButtonDataClass {
       this.font = font;
       this.colorList = colorList;
 
-      this.state = 'active';
-
       this.collision = new CollisionClass();
 
    }
@@ -42,11 +40,5 @@ export default class PixelButtonDataClass {
   setColorList = (colorList) => {
      this.colorList = colorList;
   }
-
-   setState = (state) => {
-      this.state = state;
-   }
-
-
-
+  
 }

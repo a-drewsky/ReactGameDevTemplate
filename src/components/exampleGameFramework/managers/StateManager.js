@@ -1,7 +1,7 @@
 import GameStateClass from "../GameState";
 export default class StateManagerClass {
 
-   constructor(drawMethods, intervals, uiManager){
+   constructor(drawMethod, intervals, uiManager){
       this.uiManager = uiManager;
 
       //create gloabl states
@@ -9,6 +9,8 @@ export default class StateManagerClass {
          globalState1: null,
          globalState2: null
       }
+
+      this.draw = drawMethod;
 
       //create game states
       this.gameStates = {
@@ -21,8 +23,7 @@ export default class StateManagerClass {
             'state1',
             {
                attribute1: null
-            },
-            drawMethods.defaultDrawMethod
+            }
          ),
 
          state2: new GameStateClass(
@@ -31,7 +32,6 @@ export default class StateManagerClass {
                attribute1: null,
                attribute2: null
             },
-            drawMethods.drawMethod1,
             intervals.interval1, 10
          ),
 
@@ -43,7 +43,6 @@ export default class StateManagerClass {
                attribute3: [],
                attribute4: []
             },
-            drawMethods.drawMethod2,
             intervals.interval2, 10
          )
       }
@@ -60,26 +59,26 @@ export default class StateManagerClass {
 
    setGlobalAttribute = (attribute, value) => {
       this.globalAttributes[attribute] = value;
-      this.gameStates.current.draw();
+      this.draw();
    }
 
    setGlobalAttributes = (attributeValuePairs) => {
       for(let i=0; i<attributeValuePairs.length; i++){
          this.globalAttributes[attributeValuePairs[i][0]] = attributeValuePairs[i][1];
       }
-      this.gameStates.current.draw();
+      this.draw();
    }
 
    setGameStateAttribute = (attribute, value) => {
       this.gameStates.current[attribute] = value;
-      this.gameStates.current.draw();
+      this.draw();
    }
 
    setGameStateAttributes = (attributeValuePairs) => {
       for(let i=0; i<attributeValuePairs.length; i++){
          this.gameStates.current[attributeValuePairs[i][0]] = attributeValuePairs[i][1];
       }
-      this.gameStates.current.draw();
+      this.draw();
    }
 
 
@@ -103,7 +102,7 @@ export default class StateManagerClass {
       this.uiManager.setActive("exampleButton");
 
       //redraw the canvas
-      this.gameStates.current.draw();
+      this.draw();
    }
 
    setState2 = (variable1) => {
@@ -124,7 +123,7 @@ export default class StateManagerClass {
       this.setGameStateInterval();
 
       //redraw the canvas
-      this.gameStates.current.draw();
+      this.draw();
    }
 
    setState3 = (variable1, variable2, variable3, variable4) => {
@@ -145,7 +144,7 @@ export default class StateManagerClass {
       this.setGameStateInterval();
 
       //redraw the canvas
-      this.gameStates.current.draw();
+      this.draw();
    }
    
 

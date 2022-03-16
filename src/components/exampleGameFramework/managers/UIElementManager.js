@@ -8,6 +8,7 @@ export default class UIElementManagerClass {
       this.ctx = ctx;
 
       this.elementMap = new Map();
+
       this.elementStates = {
          disabled: 'disabled',
          inactive: 'inactive',
@@ -18,13 +19,13 @@ export default class UIElementManagerClass {
 
    //Set Element States
    setDisabled = (elementName) => {
-      this.elementMap.get(elementName).data.setState(this.elementStates.disabled);
+      this.elementMap.get(elementName).state = this.elementStates.disabled;
    }
    setInactive = (elementName) => {
-      this.elementMap.get(elementName).data.setState(this.elementStates.inactive);
+      this.elementMap.get(elementName).state = this.elementStates.inactive;
    }
    setActive = (elementName) => {
-      this.elementMap.get(elementName).data.setState(this.elementStates.active);
+      this.elementMap.get(elementName).state = this.elementStates.active;
    }
 
    //Delete Element
@@ -34,8 +35,10 @@ export default class UIElementManagerClass {
 
    //Set up function
    createElements = (canvas) => {
-      this.elementMap.set("exampleButton", new PixelButtonElementClass(this.ctx, "Example", 300, 300, 100, 50, 5, 2, `${canvas.width * 0.03}px Arial`));
-      this.setActive("exampleButton");
+      this.elementMap.set("exampleButton", {
+         element: new PixelButtonElementClass(this.ctx, "Example", 300, 300, 100, 50, 5, 2, `${canvas.width * 0.03}px Arial`),
+         state: 'active'
+      })
    }
 
 }

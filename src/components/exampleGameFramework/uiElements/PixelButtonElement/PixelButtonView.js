@@ -10,11 +10,11 @@ export default class PixelButtonViewClass {
       this.pixelEdgeElement = new PixelEdgeElementClass(ctx);
    }
 
-   draw = () => {
+   draw = (state) => {
 
       let color;
 
-      switch(this.pixelButtonData.state){
+      switch(state){
          case 'disabled':
             return;
          case 'active':

@@ -37,29 +37,28 @@ export default class GameMainClass {
       //Images
       this.images = new ImagesClass();
 
-      //draw methods
-      this.drawMethods = {
-         defaultDrawMethod: this.defaultDrawMethod,
-         state1DrawMethod: this.state1DrawMethod
-      }
-
       //intervals
       this.intervals = {
-         endTurnInterval: this.endTurnInterval,
-         battleInterval: this.battleInterval,
-         endBattleInterval: this.endBattleInterval
+         state1Interval: this.state1Interval,
+         state2Interval: this.state2Interval
       }
-
 
       //Managers
       this.uiManager = new UIManagerClass(this.ctx);
       this.gameObjectManager = new GameObjectManagerClass(this.ctx);
-      this.stateManager = new StateManagerClass(this.drawMethods, this.intervals, this.uiManager);
+      this.stateManager = new StateManagerClass(this.draw, this.intervals, this.uiManager);
 
       //Controllers
       this.uiController = new UIControllerClass(this.uiManager, this.stateManager);
-      this.inputController = new InputControllerClass(this.hexGroupDiceMap, this.hexGroupDiceMapController, this.uiController, this.diceBattle, this.stateManager);
+      this.inputController = new InputControllerClass(this.stateManager, this.uiController);
    }
+   
+   //CLEAR FUNCTION
+   clear = () => {
+      clearInterval(this.stateManager.interval);
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+   }
+   //END CLEAR FUNCTION
 
 
    //TOP LEVEL CONTROLLERS
@@ -85,7 +84,7 @@ export default class GameMainClass {
 
       this.gameObjectManager.createObjects(this.settings);
 
-      this.gameObjectManager.objectMap.get('exampleGameObject1').builder.build(this.settings.size);
+      this.gameObjectManager.objectMap.get('exampleGameObject1').object.builder.build(this.settings.size);
 
       this.uiManager.createElements(this.canvas);
 
@@ -95,39 +94,25 @@ export default class GameMainClass {
    //END SETUP FUNCTIONS
 
 
-   //DRAW FUNCTIONS
-   globalDrawMethod = () => {
+   //DRAW FUNCTION
+   draw = () => {
       //clear the canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-      //global draw methods
-      this.gameObjectManager.objectMap.get('exampleGameObject1').view.draw();
-   }
-
-   uiDrawMethod = () => {
       //draw UI
       for (let [key, value] of this.uiManager.elementMap) {
-         value.view.draw();
+         if(value.state != 'disabled') value.element.view.draw(value.state);
+      }
+
+      //draw game objects
+      for (let [key, value] of this.gameObjectManager.objectMap) {
+         if(value.state != 'disabled') value.object.view.draw(value.state);
       }
    }
-
-   defaultDrawMethod = () => {
-      this.globalDrawMethod();
-      this.uiDrawMethod();
-   }
-
-   state1DrawMethod = () => {
-      this.globalDrawMethod();
-      this.uiDrawMethod();
-   }
-   //END DRAW FUNCTIONS
+   //END DRAW FUNCTION
 
 
    //INTERVAL FUNCTIONS
-   clear = () => {
-      clearInterval(this.stateManager.interval);
-   }
-
    state1Interval = () => {
 
 

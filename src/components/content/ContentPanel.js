@@ -5,14 +5,21 @@ import GameMainClass from '../exampleGameFramework/GameMainClass';
 
 const ContentPanel = () => {
 
+   //SETUP
    const canvas = useRef(null);
-
-   const [sizeSetting, setSize] = useState(50);
 
    const [gameClass, setGameClass] = useState(null);
 
    const [winCondition, setWinCondition] = useState(null);
+   //END SETUP
 
+
+   //SETTINGS
+   const [sizeSetting, setSize] = useState(50);
+   //END SETTINGS
+
+
+   //CREATE NEW GAME METHOD
    const startNewGame = (e) => {
       e.preventDefault();
 
@@ -29,24 +36,23 @@ const ContentPanel = () => {
       setGameClass(newGameClass);
 
       setWinCondition(null);
-
    }
-   
+   //END CREATE NEW GAME METHOD
+
 
    //INPUTS
-
    const mouseDown = ({ nativeEvent }) => {
       const { offsetX, offsetY } = nativeEvent;
 
       gameClass.click(offsetX, offsetY);
 
    }
-
    //END INPUJTS
 
 
    return (
       <>
+         {/*WIN CONDITION TEXT*/}
          {
             (winCondition != null)
             &&
@@ -54,6 +60,10 @@ const ContentPanel = () => {
                <h1>{winCondition}</h1>
             </>
          }
+         {/*END WIN CONDITION TEXT*/}
+
+
+         {/*CANVAS*/}
          <div className={(winCondition != null || gameClass == null) && 'd-none'}>
             <Row className='py-2'>
                <canvas
@@ -68,7 +78,10 @@ const ContentPanel = () => {
                />
             </Row>
          </div>
+         {/*END CANVAS*/}
 
+
+         {/*GAME CREATION FORM*/}
          <Form className='mt-5 mb-5 border w-50 mx-auto' onSubmit={startNewGame}>
 
             <Form.Group className='my-4 d-flex justify-content-center'>
@@ -87,6 +100,7 @@ const ContentPanel = () => {
             </Form.Group>
 
          </Form>
+         {/*END GAME CREATION FORM*/}
       </>
    )
 }

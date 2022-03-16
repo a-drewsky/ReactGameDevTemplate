@@ -9,12 +9,41 @@ export default class GameObjectManagerClass {
         this.ctx = ctx;
 
         this.objectMap = new Map();
+
+        this.objectStates = {
+            disabled: 'disabled',
+            inactive: 'inactive',
+            active: 'active'
+         }
+    }
+
+    //Set Object States
+    setDisabled = (objectName) => {
+        this.objectMap.get(objectName).object.data.setState(this.objectStates.disabled);
+    }
+    setInactive = (objectName) => {
+        this.objectMap.get(objectName).object.data.setState(this.objectStates.inactive);
+    }
+    setActive = (objectName) => {
+        this.objectMap.get(objectName).object.data.setState(this.objectStates.active);
+    }
+
+    //Delete Object
+    deleteElement = (objectName) => {
+        this.objectMap.delete(objectName);
     }
 
     //Set up function
     createObjects = (settings) => {
-        this.objectMap.set("exampleGameObject1", new ExampleGameObeject1Class(this.ctx, 100, 100, settings.size));
-        this.objectMap.set("exampleGameObject2", new ExampleGameObeject2Class(this.ctx, 100, 100, settings.size));
+        this.objectMap.set("exampleGameObject1", {
+            object: new ExampleGameObeject1Class(this.ctx, 100, 100, settings.size),
+            state: this.objectStates.active
+        });
+
+        this.objectMap.set("exampleGameObject2", {
+            object: new ExampleGameObeject2Class(this.ctx, 100, 100, settings.size),
+            state: this.objectStates.active
+        });
     }
 
 }
