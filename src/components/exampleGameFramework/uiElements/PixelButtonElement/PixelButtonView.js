@@ -1,4 +1,4 @@
-import PixelEdgeElementClass from "./PixelEdgeElement/PixelEdgeElement";
+import PixelEdgeElementClass from "../PixelEdgeElement/PixelEdgeElement";
 
 export default class PixelButtonViewClass {
 

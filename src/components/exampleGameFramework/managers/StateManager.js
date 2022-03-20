@@ -1,18 +1,19 @@
 import GameStateClass from "../GameState";
 export default class StateManagerClass {
 
-   constructor(drawMethod, intervals, uiManager){
+   constructor(drawMethod, intervalsList, gameObjectManager, uiManager){
+      this.gameObjectManager = gameObjectManager;
       this.uiManager = uiManager;
 
-      //create gloabl states
+      //create gloabl attributes
       this.globalAttributes = {
-         globalState1: null,
-         globalState2: null
+         globalAttribute1: null,
+         globalAttribute2: null
       }
 
       this.draw = drawMethod;
 
-      //create game states
+      //create game states list
       this.gameStates = {
 
          //current game state
@@ -32,7 +33,7 @@ export default class StateManagerClass {
                attribute1: null,
                attribute2: null
             },
-            intervals.interval1, 10
+            intervalsList.interval1, 10
          ),
 
          state3: new GameStateClass(
@@ -43,11 +44,13 @@ export default class StateManagerClass {
                attribute3: [],
                attribute4: []
             },
-            intervals.interval2, 10
+            intervalsList.interval2, 10
          )
       }
 
    }
+
+   //SET STATE HELPER METHODS
 
    setGameState = (state) => {
       this.gameStates.current = this.gameStates[state];
@@ -80,6 +83,8 @@ export default class StateManagerClass {
       }
       this.draw();
    }
+
+   //END SET STATE HELPER METHODS
 
 
    //SET STATE METHODS
@@ -147,5 +152,6 @@ export default class StateManagerClass {
       this.draw();
    }
    
+   //END SET STATE METHODS
 
 }

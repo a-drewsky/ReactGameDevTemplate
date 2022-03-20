@@ -14,7 +14,7 @@ export default class GameObjectManagerClass {
             disabled: 'disabled',
             inactive: 'inactive',
             active: 'active'
-         }
+        }
     }
 
     //Set Object States
@@ -35,6 +35,8 @@ export default class GameObjectManagerClass {
 
     //Set up function
     createObjects = (settings) => {
+
+        //Initialize game objects
         this.objectMap.set("exampleGameObject1", {
             object: new ExampleGameObeject1Class(this.ctx, 100, 100, settings.size),
             state: this.objectStates.active
@@ -44,6 +46,9 @@ export default class GameObjectManagerClass {
             object: new ExampleGameObeject2Class(this.ctx, 100, 100, settings.size),
             state: this.objectStates.active
         });
+
+        //build game objects
+        this.objectMap.get('exampleGameObject1').object.builder.build(settings.size);
     }
 
 }
