@@ -8,6 +8,7 @@ export default class ExampleGameObject1BuilderClass {
 
    }
 
+   //Build helper methods
    generateMap = () => {
       for (let x = 0; x < 10; x++) {
          this.exampleGameObject1Data.setEntry(x, {
@@ -16,6 +17,7 @@ export default class ExampleGameObject1BuilderClass {
       }
    }
 
+   //Build methods
    build = (mapGeneration) => {
 
       if (mapGeneration == "gen1") {
