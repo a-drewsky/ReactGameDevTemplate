@@ -1,23 +1,22 @@
 export default class UIControllerClass {
 
-    constructor(stateManager, uiManager){
-        this.uiManager = uiManager
-        this.stateManager = stateManager
+    constructor(gameManager){
+        this.gameManager = gameManager;
     }
 
     click = (x, y) => {
-        for (let [key, value] of this.uiManager.buttonMap) {
-           if (value.data.state == this.uiManager.buttonStates.active && value.controller.click(x, y)) {
+        for (let [key, value] of this.gameManager.ui.buttonMap) {
+           if (value.data.state == this.gameManager.ui.elementStates.active && value.controller.click(x, y)) {
   
-              value.data.setState(this.uiManager.buttonStates.clicked);
+              value.data.setState(this.gameManager.ui.elementStates.clicked);
   
               let clickTimer = setInterval(() => {
-                 if(value.data.state == this.uiManager.buttonStates.clicked) value.data.setState(this.uiManager.buttonStates.active);
+                 if(value.data.state == this.gameManager.ui.elementStates.clicked) value.data.setState(this.gameManager.ui.elementStates.active);
                  clearInterval(clickTimer);
-                 this.stateManager.gameStates.current.draw();
+                 this.gameManager.state.gameStates.current.draw();
               }, 200)
   
-              this.stateManager.gameStates.current.draw();
+              this.gameManager.state.gameStates.current.draw();
               return {
                  key: key,
                  x: x-value.data.x,

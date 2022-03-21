@@ -1,8 +1,6 @@
 
-//Import Managers
-import StateManagerClass from './managers/StateManager';
-import UIElementManagerClass from './managers/UIElementManager';
-import GameObjectManagerClass from './managers/GameObjectManager';
+//Import Game Manager
+import GameManagerClass from './managers/GameManager';
 
 //Import Input Controller
 import InputControllerClass from './controllers/InputController';
@@ -39,19 +37,17 @@ export default class GameMainClass {
          state2Interval: this.state2Interval
       }
 
-      //Managers
-      this.uiElementManager = new UIElementManagerClass(this.ctx);
-      this.gameObjectManager = new GameObjectManagerClass(this.ctx);
-      this.stateManager = new StateManagerClass(this.draw, this.intervalsList, this.gameObjectManager, this.uiElementManager);
+      //Game manager
+      this.gameManager = new GameManagerClass(this.ctx, this.draw, this.intervalsList);
 
       //Input controller
-      this.inputController = new InputControllerClass(this.stateManager, this.uiController);
+      this.inputController = new InputControllerClass(this.gameManager);
    }
 
 
    //TOP LEVEL CONTROLLERS
    clear = () => {
-      clearInterval(this.stateManager.interval);
+      clearInterval(this.gameManager.state.interval);
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
    }
 
@@ -63,7 +59,7 @@ export default class GameMainClass {
 
    //SETUP FUNCTIONS
    startGame = () => {
-      this.stateManager.setState1(0);
+      this.gameManager.state.setState1(0);
    }
 
 
@@ -77,10 +73,10 @@ export default class GameMainClass {
       loadingView.draw();
 
       //Create game objects
-      this.gameObjectManager.createObjects(this.settings);
+      this.gameManager.objects.createObjects(this.settings);
 
       //Create ui elements
-      this.uiElementManager.createElements(this.canvas);
+      this.gameManager.ui.createElements(this.canvas);
 
       //load images and pass start game function
       this.images.loadImages(this.startGame);
@@ -95,12 +91,12 @@ export default class GameMainClass {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
       //draw game objects
-      for (let [key, value] of this.gameObjectManager.objectMap) {
+      for (let [key, value] of this.gameManager.objects.objectMap) {
          if(value.state != 'disabled') value.object.view.draw(value.state);
       }
       
       //draw UI
-      for (let [key, value] of this.uiElementManager.elementMap) {
+      for (let [key, value] of this.gameManager.ui.elementMap) {
          if(value.state != 'disabled') value.element.view.draw(value.state);
       }
    }

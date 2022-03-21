@@ -29,7 +29,7 @@ export default class GameObjectManagerClass {
     }
 
     //Delete Object
-    deleteElement = (objectName) => {
+    deleteObject = (objectName) => {
         this.objectMap.delete(objectName);
     }
 
