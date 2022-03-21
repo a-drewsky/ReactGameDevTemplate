@@ -19,8 +19,7 @@ export default class UIControllerClass {
               this.gameManager.state.gameStates.current.draw();
               return {
                  key: key,
-                 x: x-value.data.x,
-                 y: y-value.data.y
+                 value: value.controller.click(x, y)
               }
            }
         }

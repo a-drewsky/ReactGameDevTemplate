@@ -8,6 +8,7 @@ export default class InputControllerClass {
       this.gameManager = gameManager;
       this.uiController = new UIControllerClass(this.gameManager);
 
+      //State controller List
       this.exampleState1Controller = new ExampleState1ControllerClass(this.gameManager, this.uiController);
       this.exampleState2Controller = new ExampleState2ControllerClass(this.gameManager, this.uiController);
 
@@ -15,6 +16,7 @@ export default class InputControllerClass {
 
    click = (x, y) => {
 
+      //State controller functions
       switch (this.gameManager.state.gameStates.current.stateName) {
          case 'stateOne':
             this.exampleState1Controller.click(x, y);
