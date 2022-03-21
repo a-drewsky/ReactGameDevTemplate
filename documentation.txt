@@ -1,0 +1,235 @@
+React Game Framework Documentation
+
+
+
+Content Panel
+
+	Canvas
+	    The content panel contains the canvas in which the game will run
+	    This is set up with a useRef that refers to the canvas and is passed to the game object
+	 WinCondition
+	    WinCondition is a variable that is passed to the game object.
+	    It is initially false and can be set to true by game events, this can be used to activate a change in the React application when a game is complete.
+	Game Creation Form
+	    This is a form that can be given any number of settings which are passed to the game object apon creation.
+
+
+
+Game Images Class
+
+	Import each image from the images folder
+	Create a placeholder for each image in the images object in the constructor
+	loadImages function will loop through each of these image objects and make them a class attribute, after each of them is loaded the original list will be deleted the startGame method will be called
+	Assign each image at the end of the loadImages function
+ 
+
+
+Game Main Class
+
+	Imports
+	    All top-level imports are already set up
+	    All created classes will be imported into Manager classes
+	    Images will be imported into imagesClass
+	Constructor
+	    Assign the canvas and context objects, set any global options for context
+	    Assign setWinCondition
+	    Assign Settings
+	    Create new images class
+	    Create intervals list object
+	        This is a list of update methods which will be passed to the statemanager
+	        Intervals are created at the bottom of the GameMainClass
+	    Create managers
+	        Managers manage a set of objects. This is where most game elements will be imported and handled
+	        There are 3 managers, uiElementManager, gameObjectManager and stateManager
+	    Create input controller 
+	        Input controller is where all inputs will be passed to.
+	        Input controller contains all other controllers
+	Top level controllers
+	    These are control methods that are activated from the content panel via user input
+	    Clear method is used to reset the game
+	    All other control methods should pass received values to a method in the input controller
+	Setup functions
+	    startGame is the method used to start the game after all assets are loaded.
+	        This should make a call to the state manager to set the initial game state.
+	        This method is passed to the loadImages method in createGame
+	    createGame is a method that is called from the content panel to start the game. This is where all initialization happens.
+	Draw function
+	    This method should be called everytime there is any change to game state, object state or ui state
+	    First clears the canvas, then draws all game objects then draws all ui elements
+	Interval functions
+	    These are update functions which are attached to game states that require updates on a timer.
+
+
+ 
+Managers
+
+
+Game Manager
+
+	Contains state manager, game object manager and ui manager
+
+
+State Manager
+
+	Constructor
+	    The state manager needs the drawMethod to call when state is updated
+	    The state manager needs the intervals list to attach intervals to game states
+	    The state manager also needs the uiManager and gameObjectManager
+	        This is the set the state of gameObjects and uiElements when changing game state
+	    Create global attributes
+	        These are attributes which are persistent for every game state
+	    Create game states list
+	        This is a list of game states which each have a name and a set of attributes
+	        The first element in the list is called current and is used to refer to the current game state
+	        Game states can also have an interval and an interval frequency
+	            This is essentially an update method and a timer that determines how frequently the method will be activated.
+	Set state helper methods
+	    These are methods meant to assist you when creating set state methods
+	    setGameState take a state name and sets the current game state to that state
+	    setGameStateInterval will activate the interval for the current game state
+	    setGlobalAttribute and setGlobalAttributes will set the global attributes that are passed to them
+	    setGameStateAttribute and setGameStateAttributes will set the current state attributes that are passed to them
+	Set state methods
+	    Each state needs to have a set state method
+	    This is the method called to activate a game state
+
+ 
+Game Object Manager
+
+	Constructor
+	    Takes in a context object
+	    Creates the object map
+	    Contains a list of all object states used as enum
+	Set object states
+	    Each object state should have a set state method that takes in the name of an object and sets it to that state
+	    Delete object takes in an object name and deletes it from the object map
+	CreateObjects
+	    This function is called during game creation and should initalize any necessary game objects
+
+
+UI Element Manager
+
+	Constructor
+	    Takes in a context object
+	    Creates the element map
+	    Contains a list of all element states used as enum
+	Set object states
+	    Each element state should have a set state method that takes in the name of an element and sets it to that state
+	    Delete element takes in an element name and deletes it from the element map
+	CreateElements
+	    This function is called during game creation and should initalize any necessary UI elements
+ 
+
+
+Controllers
+
+
+Input Controller
+
+	Constructor
+	    Takes in a game manager
+	    Creates a ui contoller and passes game manager
+	    Create a list of state controllers
+	        There should be one controller for each state
+	State controller functions
+	    This is a switch statement that calls the click method of the state controller for the current game state
+
+
+UI Controller
+
+	Constructor
+	    Takes in game manager
+	Click
+	    Returns the element name and data returned from element controller click function
+	    Returns null if no element is clicked
+
+
+State Controllers
+
+	Constructor
+	    Takes in game manager and ui controller
+	Click method
+	    Function to determine what happens when an input is received during the corresponding game state.
+	    Can manipulate game object, ui elements and game state
+	    Starts by checking if a ui element is clicked then proceeds with the rest of the logic
+ 
+
+
+Game Objects
+
+
+Game Object Class
+
+	Contains data, builder, controller and view for a single game object
+
+
+Game Object Data
+
+	All the data for a game object
+	Include set, get and check methods
+
+
+Game Object Builder
+
+	Constructor
+	    Takes in data for the game object
+	Build helper methods
+	    Create the methods that are needed to create the game object
+	Build method
+	    Should use a switch statement based on input parameters
+	    Calls various build helper methods to build the game object
+
+
+Game Object Controller
+
+	Constructor
+	    Takes in data for the game object
+	Click method
+	    Determines what happens when the game object is clicked
+
+
+Game Object View
+
+	Constructor
+	    Takes in context object and data for the game object
+	Draw
+	    Method to draw the game object based on game object data 
+
+
+
+UI Elements
+
+
+UI Element Class
+
+	Contains element data, controller and view
+
+
+UI Element Data 
+
+	All data for element
+	Include set methods
+
+
+UI Element Controller
+
+	Constructor
+	    Takes in data for the ui element
+	Click method
+	    Returns relavent data is element is clicked
+	    Should return null if not clicked
+
+
+UI Element View
+
+	Constructor
+	    Takes in context object and data for the ui element
+	Draw 
+	    Method to draw the ui element based on element data
+
+
+
+Utilities
+
+	Classes to assist with logic such as math and physics
+
