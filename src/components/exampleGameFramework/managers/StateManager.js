@@ -98,7 +98,7 @@ export default class StateManagerClass {
       this.setGameState('state1');
 
       //set global states
-      this.setGlobalAttribute('globalState1', variable1); //create set global state method
+      this.setGlobalAttribute('globalState1', variable1);
 
       //set gamestate attributes
       this.setGameStateAttribute('attribute1', null);
